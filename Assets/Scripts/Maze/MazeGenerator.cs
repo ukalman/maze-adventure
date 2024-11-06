@@ -66,8 +66,7 @@ public class MazeGenerator : MonoBehaviour
                 yield return GenerateMaze(currentCell, nextCell);
             }
         } while (nextCell != null);
-
-
+        
     }
 
     private MazeCell GetNextUnvisitedCell(MazeCell currentCell)

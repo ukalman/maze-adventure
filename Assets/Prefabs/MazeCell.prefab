@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 5103261107584120917}
   - component: {fileID: 7833359070692599771}
   - component: {fileID: 3699480670382586046}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Graphics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6632259536036725306}
   - component: {fileID: 1040776307574715265}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: UnvisitedBlock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -147,7 +147,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1137249455676994897}
   - component: {fileID: 8058159741045017811}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -202,7 +202,7 @@ GameObject:
   - component: {fileID: 8999027301020463568}
   - component: {fileID: 4045778188774033699}
   - component: {fileID: 3337952366605332117}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Graphics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -285,7 +285,7 @@ GameObject:
   - component: {fileID: 7969178971841506916}
   - component: {fileID: 5279457061884173418}
   - component: {fileID: 8327139942483735219}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Graphics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -368,7 +368,7 @@ GameObject:
   - component: {fileID: 3380784735662872604}
   - component: {fileID: 4071166952948589767}
   - component: {fileID: 7706406585676737999}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Graphics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -450,7 +450,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5472222947727503651}
   - component: {fileID: 7906206598871986128}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: FrontWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -505,7 +505,7 @@ GameObject:
   - component: {fileID: 9200409202228416862}
   - component: {fileID: 909948570576408950}
   - component: {fileID: 7884997228723247713}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Graphics
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -587,7 +587,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5754758398371742273}
   - component: {fileID: 1327032111834487091}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: MazeCell
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -641,7 +641,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4398400577628277522}
   - component: {fileID: 8906581081484497777}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: BackWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -695,7 +695,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3581547650019368153}
   - component: {fileID: 3709757040899392659}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
