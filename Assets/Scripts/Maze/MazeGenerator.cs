@@ -1,7 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.AI.Navigation;
+using Random = UnityEngine.Random;
 
 public class MazeGenerator : MonoBehaviour
 {
@@ -9,19 +12,26 @@ public class MazeGenerator : MonoBehaviour
 
     [SerializeField] private int mazeWidth, mazeDepth;
 
+    [SerializeField] private int seed;
+
+    [SerializeField] private bool useSeed;
+    
     private MazeCell[,] mazeGrid;
+
+    public static Action onMazeGenerated;
     
     IEnumerator Start()
     {
-        GameObject worldObjects = GameObject.Find("WorldObjects");
-        if (worldObjects == null)
+        if (useSeed)
         {
-            Debug.LogError("WorldObjects GameObject not found in the scene.");
-            yield break;
+            Random.InitState(seed);
+        } 
+        else
+        {
+            int randomSeed = Random.Range(1, 1000000);
+            Random.InitState(randomSeed);
+            Debug.Log(randomSeed);
         }
-        
-        GameObject mazeContainer = new GameObject("Maze");
-        mazeContainer.transform.SetParent(worldObjects.transform);
         
         mazeGrid = new MazeCell[mazeWidth, mazeDepth];
 
@@ -29,12 +39,14 @@ public class MazeGenerator : MonoBehaviour
         {
             for (int z = 0; z < mazeDepth; z++)
             {
-                mazeGrid[x,z] = Instantiate(mazeCellPrefab, new Vector3(x, 0.0f, z), Quaternion.identity);
-                mazeGrid[x, z].transform.SetParent(mazeContainer.transform);
+                mazeGrid[x,z] = Instantiate(mazeCellPrefab, new Vector3(x, 0.0f, z), Quaternion.identity, transform);
+                mazeGrid[x, z].transform.localPosition = new Vector3(x, 0.0f, z);
             }
         }
 
         yield return GenerateMaze(null, mazeGrid[0,0]);
+        GetComponent<NavMeshSurface>().BuildNavMesh();
+        onMazeGenerated?.Invoke();
     }
 
     private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell)
@@ -68,8 +80,8 @@ public class MazeGenerator : MonoBehaviour
 
     private IEnumerable<MazeCell> GetUnvisitedCells(MazeCell currentCell)
     {
-        int x = (int)currentCell.transform.position.x;
-        int z = (int)currentCell.transform.position.z;
+        int x = (int)currentCell.transform.localPosition.x;
+        int z = (int)currentCell.transform.localPosition.z;
 
         if (x + 1 < mazeWidth)
         {
@@ -119,28 +131,28 @@ public class MazeGenerator : MonoBehaviour
             return;
         }
 
-        if (previousCell.transform.position.x < currentCell.transform.position.x)
+        if (previousCell.transform.localPosition.x < currentCell.transform.localPosition.x)
         {
             previousCell.ClearRightWall();
             currentCell.ClearLeftWall();
             return;
         }
 
-        if (previousCell.transform.position.x > currentCell.transform.position.x)
+        if (previousCell.transform.localPosition.x > currentCell.transform.localPosition.x)
         {
             previousCell.ClearLeftWall();
             currentCell.ClearRightWall();
             return;
         }
 
-        if (previousCell.transform.position.z < currentCell.transform.position.z)
+        if (previousCell.transform.localPosition.z < currentCell.transform.localPosition.z)
         {
             previousCell.ClearFrontWall();
             currentCell.ClearBackWall();
             return;
         }
 
-        if (previousCell.transform.position.z > currentCell.transform.position.z)
+        if (previousCell.transform.localPosition.z > currentCell.transform.localPosition.z)
         {
             previousCell.ClearBackWall();
             currentCell.ClearFrontWall();
