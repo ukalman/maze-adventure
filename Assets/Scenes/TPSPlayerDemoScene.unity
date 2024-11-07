@@ -1318,7 +1318,7 @@ GameObject:
   - component: {fileID: 1007812503}
   - component: {fileID: 1007812502}
   m_Layer: 0
-  m_Name: TPSCam (1)
+  m_Name: TPSCombatCam
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2040,7 +2040,7 @@ GameObject:
   - component: {fileID: 1696708082}
   - component: {fileID: 1696708084}
   m_Layer: 0
-  m_Name: TPSCombatCam
+  m_Name: TPSCam(Unused)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
