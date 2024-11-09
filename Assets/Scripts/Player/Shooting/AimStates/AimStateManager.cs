@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using UnityEngine.Animations.Rigging;
 
 public class AimStateManager : MonoBehaviour
 {
@@ -23,17 +24,39 @@ public class AimStateManager : MonoBehaviour
     [HideInInspector] public float currentFov;
     public float fovSmoothSpeed = 10.0f;
 
-    public Transform aimPos;
+    [HideInInspector] public Transform aimPos;
     [HideInInspector] public Vector3 actualAimPos;
     [SerializeField] private float aimSmoothSpeed = 20.0f;
     [SerializeField] private LayerMask aimMask;
+
+    private MultiAimConstraint[] multiAims;
+    private WeightedTransform aimPosWeightedTransform;
 
     private float xFollowPos;
     private float yFollowPos, originalYPos;
     [SerializeField] private float crouchCamHeight = 0.6f;
     [SerializeField] private float shouldSwapSpeed = 10.0f;
     private MovementStateManager moving;
-    
+
+    private void Awake()
+    {
+        aimPos = new GameObject().transform;
+        aimPos.name = "AimPosition";
+
+        aimPosWeightedTransform.transform = aimPos;
+        aimPosWeightedTransform.weight = 1.0f;
+
+        multiAims = GetComponentsInChildren<MultiAimConstraint>();
+
+        foreach (MultiAimConstraint constraint in multiAims)
+        {
+            var data = constraint.data.sourceObjects;
+            data.Clear();
+            data.Add(aimPosWeightedTransform);
+            constraint.data.sourceObjects = data;
+        }
+    }
+
     void Start()
     {
         moving = GetComponent<MovementStateManager>();

@@ -6,8 +6,9 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     [SerializeField] private float timeToDestroy;
-    [HideInInspector] public WeaponManager weapon; 
-   
+    [HideInInspector] public WeaponManager weapon;
+    [HideInInspector] public Vector3 dir;
+    
     void Start()
     {
        Destroy(gameObject, timeToDestroy); 
@@ -19,6 +20,14 @@ public class Bullet : MonoBehaviour
         {
             var enemyHealth = other.gameObject.GetComponentInParent<EnemyHealth>();
             enemyHealth.TakeDamage(weapon.damage);
+
+            if (enemyHealth.Health <= 0.0f && !enemyHealth.isDead)
+            {
+                Rigidbody rb = other.gameObject.GetComponent<Rigidbody>();
+                rb.AddForce(dir * weapon.enemyKickbackForce, ForceMode.Impulse);
+                enemyHealth.isDead = true;
+            }
+            
         }
         Destroy(gameObject);
     }

@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class WeaponManager : MonoBehaviour
 {
@@ -18,9 +20,8 @@ public class WeaponManager : MonoBehaviour
     private AimStateManager aim;
 
     [SerializeField] private AudioClip[] gunShotSounds;
-    private AudioSource audioSource;
-
-    private WeaponAmmo ammo;
+    [HideInInspector] public AudioSource audioSource;
+    [HideInInspector] public WeaponAmmo ammo;
     private WeaponBloom bloom;
     private WeaponRecoil recoil;
     
@@ -30,13 +31,15 @@ public class WeaponManager : MonoBehaviour
     private ParticleSystem muzzleFlashParticles;
     private float lightIntensity;
     [SerializeField] private float lightReturnSpeed = 20.0f;
+
+    public float enemyKickbackForce = 100.0f;
+
+    public Transform leftHandTarget, leftHandHint;
+    private WeaponClassManager weaponClass;
     
     void Start()
     {
-        recoil = GetComponent<WeaponRecoil>();
-        audioSource = GetComponent<AudioSource>();
         aim = GetComponentInParent<AimStateManager>();
-        ammo = GetComponent<WeaponAmmo>();
         bloom = GetComponent<WeaponBloom>();
         actions = GetComponentInParent<ActionStateManager>();
         muzzleFlashLight = GetComponentInChildren<Light>();
@@ -45,7 +48,20 @@ public class WeaponManager : MonoBehaviour
         muzzleFlashParticles = GetComponentInChildren<ParticleSystem>();
         fireRateTimer = fireRate;
     }
-    
+
+    private void OnEnable()
+    {
+        if (weaponClass == null)
+        {
+            weaponClass = GetComponentInParent<WeaponClassManager>();
+            ammo = GetComponent<WeaponAmmo>();
+            audioSource = GetComponent<AudioSource>();
+            recoil = GetComponent<WeaponRecoil>();
+            recoil.recoilFollowPos = weaponClass.recoilFollowPosition;
+        }
+        weaponClass.SetCurrentWeapon(this);
+    }
+
     void Update()
     {
         if(ShouldFire()) Fire();
@@ -58,6 +74,7 @@ public class WeaponManager : MonoBehaviour
         if (fireRateTimer < fireRate) return false;
         if (ammo.currentAmmo == 0) return false;
         if (actions.CurrentState == actions.Reload) return false;
+        if (actions.CurrentState == actions.Swap) return false;
         if (semiAuto && Input.GetKeyDown(KeyCode.Mouse0)) return true;
         if (!semiAuto && Input.GetKey(KeyCode.Mouse0)) return true;
         return false;
@@ -78,6 +95,7 @@ public class WeaponManager : MonoBehaviour
             
             Bullet bulletScript = bulletGO.GetComponent<Bullet>();
             bulletScript.weapon = this;
+            bulletScript.dir = barrelPos.transform.forward;
             
             Rigidbody rb = bulletGO.GetComponent<Rigidbody>();
             rb.AddForce(barrelPos.forward * bulletVelocity, ForceMode.Impulse);
