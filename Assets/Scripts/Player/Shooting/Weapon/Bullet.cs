@@ -20,12 +20,18 @@ public class Bullet : MonoBehaviour
         {
             var enemyHealth = other.gameObject.GetComponentInParent<EnemyHealth>();
             enemyHealth.TakeDamage(weapon.damage);
-
+            
             if (enemyHealth.Health <= 0.0f && !enemyHealth.isDead)
             {
-                Rigidbody rb = other.gameObject.GetComponent<Rigidbody>();
-                rb.AddForce(dir * weapon.enemyKickbackForce, ForceMode.Impulse);
-                enemyHealth.isDead = true;
+                var enemyController = other.gameObject.GetComponentInParent<EnemyController>();
+
+                if (enemyController != null && (enemyController.CurrentState != enemyController.Run && enemyController.CurrentState != enemyController.Scream))
+                {
+                    Rigidbody rb = other.gameObject.GetComponent<Rigidbody>();
+                    rb.AddForce(dir * weapon.enemyKickbackForce, ForceMode.Impulse);
+                    enemyHealth.isDead = true;
+                }
+                
             }
             
         }

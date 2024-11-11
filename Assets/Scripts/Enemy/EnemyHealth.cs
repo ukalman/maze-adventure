@@ -6,12 +6,15 @@ using UnityEngine;
 public class EnemyHealth : MonoBehaviour
 {
     public float Health { get; private set; }
-    private RagdollManager ragdollManager;
+    private EnemyController enemyController;
     [HideInInspector] public bool isDead;
 
+    private RagdollManager ragdollManager;
+    
     private void Start()
     {
         Health = 100.0f;
+        enemyController = GetComponent<EnemyController>();
         ragdollManager = GetComponent<RagdollManager>();
     }
 
@@ -21,13 +24,27 @@ public class EnemyHealth : MonoBehaviour
         {
             Health -= damage;
             if (Health <= 0.0f) EnemyDeath();
+
             else Debug.Log("Hit!");   
         }
     }
 
     private void EnemyDeath()
     {
-        ragdollManager.TriggerRagdoll();
+        //enemyController.isDead = true;
+
+        if (enemyController.CurrentState != enemyController.Run && enemyController.CurrentState != enemyController.Scream)
+        {
+            Destroy(enemyController.anim);
+            ragdollManager.TriggerRagdoll();
+        }
+
+        else
+        {
+            Debug.Log("Ow yeah, he is running!");
+            isDead = true;
+        }
+        
         // isDead is set to true in Bullet script
         Debug.Log("Enemy died!");
     }
