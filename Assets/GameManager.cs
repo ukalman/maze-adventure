@@ -6,9 +6,21 @@ using Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance { get; private set; }
+    
     public Transform playerHead;
     private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+        
         //Camera.main.gameObject.AddComponent<CinemachineBrain>();
     }
 
