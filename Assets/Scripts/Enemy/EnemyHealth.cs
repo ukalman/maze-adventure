@@ -10,6 +10,8 @@ public class EnemyHealth : MonoBehaviour
     [HideInInspector] public bool isDead;
 
     private RagdollManager ragdollManager;
+
+    public ParticleSystem bloodSplatterPrefab;
     
     private void Start()
     {
@@ -44,7 +46,13 @@ public class EnemyHealth : MonoBehaviour
             Debug.Log("Ow yeah, he is running!");
             isDead = true;
         }
+        // gameObject.layer = LayerMask.NameToLayer("DeadEnemy");
         
+        int deadEnemyLayer = LayerMask.NameToLayer("DeadEnemy");
+        foreach (Transform child in transform)
+        {
+            GameManager.Instance.SetLayerRecursively(child.gameObject, deadEnemyLayer);
+        }
         // isDead is set to true in Bullet script
         Debug.Log("Enemy died!");
     }

@@ -4,16 +4,12 @@ using UnityEngine;
 public class EnemyScreamingState : EnemyBaseState
 {
     private bool animFinished;
-
+    private float rotationDuration = 1.5f; 
     public override void EnterState(EnemyController controller)
     {
-        Debug.Log("We're screaming!");
-        animFinished = false; // Reset the flag
-        if (controller.anim != null) 
-        {
-            controller.anim.SetBool("ZombieScreaming", true);
-            controller.StartCoroutine(WaitForScreamingAnimation(controller));
-        }
+        animFinished = false;
+        controller.enemyAgent.enabled = false;
+        controller.StartCoroutine(RotateTowardsPlayerAndStartScreaming(controller));
     }
 
     public override void UpdateState(EnemyController controller)
@@ -38,6 +34,7 @@ public class EnemyScreamingState : EnemyBaseState
         {
             ExitState(controller, controller.Attack);
         }
+        
     }
 
     public override void ExitState(EnemyController controller, EnemyBaseState stateToSwitch)
@@ -47,21 +44,55 @@ public class EnemyScreamingState : EnemyBaseState
 
         controller.SwitchState(stateToSwitch);
     }
+    
+    private IEnumerator RotateTowardsPlayerAndStartScreaming(EnemyController controller)
+    {
+        Vector3 directionToPlayer = (GameManager.Instance.Player.transform.position - controller.transform.position).normalized;
+        
+        float angleOffset = 10f; // how many degrees before fully facing the player
+        
+        directionToPlayer = Quaternion.AngleAxis(angleOffset, Vector3.up) * directionToPlayer;
+        
+        Quaternion targetRotation = Quaternion.LookRotation(directionToPlayer);
+        
+        float timeElapsed = 0f;
+        Quaternion startRotation = controller.transform.rotation;
+    
+        while (timeElapsed < rotationDuration)
+        {
+            timeElapsed += Time.deltaTime;
+            controller.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, timeElapsed / rotationDuration);
+            yield return null;
+        }
+        
+        controller.transform.rotation = targetRotation;
 
+        // Start the scream animation after rotation completes
+        if (controller.anim != null) 
+        {
+            controller.anim.SetBool("ZombieScreaming", true);
+            controller.StartCoroutine(WaitForScreamingAnimation(controller));
+        }
+    }
+    
     private IEnumerator WaitForScreamingAnimation(EnemyController controller)
     {
-        // Wait until the animation has finished or the enemy dies
+        /*
         while ((!animFinished && !controller.isDead) &&
                (controller.anim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f ||
                 controller.anim.GetCurrentAnimatorStateInfo(0).IsName("ZombieScreaming")))
         {
             yield return null;
         }
+        */
 
-        // Set animFinished to true only if the enemy is still alive
+        yield return new WaitForSeconds(2.5f);
+        
         if (!controller.isDead)
         {
             animFinished = true;
         }
     }
+
+    
 }

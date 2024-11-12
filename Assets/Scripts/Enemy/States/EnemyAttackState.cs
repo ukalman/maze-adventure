@@ -5,8 +5,16 @@ public class EnemyAttackState : EnemyBaseState
 {
     public override void EnterState(EnemyController controller)
     {
-        if (controller.enemyAgent != null) controller.enemyAgent.isStopped = true;
-        if (controller.anim != null) controller.anim.SetBool("ZombieAttacking",true);
+        if (controller.enemyAgent != null)
+        {
+            controller.enemyAgent.enabled = true;
+            controller.enemyAgent.isStopped = true;
+        }
+        if (controller.anim != null)
+        {
+            controller.anim.speed = 1.5f;
+            controller.anim.SetBool("ZombieAttacking",true);
+        }
     }
 
     public override void UpdateState(EnemyController controller)

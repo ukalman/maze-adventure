@@ -21,7 +21,14 @@ public class RagdollManager : MonoBehaviour
         {
             rb.isKinematic = false;
         }
+    }
 
+    public void DeactivateRagdoll()
+    {
+        foreach (Rigidbody rb in rbs)
+        {
+            rb.isKinematic = true;
+        }
     }
     
 }

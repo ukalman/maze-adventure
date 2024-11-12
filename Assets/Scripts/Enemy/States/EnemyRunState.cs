@@ -3,13 +3,17 @@ public class EnemyRunState : EnemyBaseState
 {
     public override void EnterState(EnemyController controller)
     {
+        
         if (controller.anim != null)
         {
+            controller.anim.speed = 1.0f;
             controller.anim.SetBool("ZombieRunning",true);
         }
 
         if (controller.enemyAgent != null)
         {
+            controller.enemyAgent.enabled = true;
+            controller.enemyAgent.speed = controller.runSpeed;
             controller.enemyAgent.isStopped = false;
             controller.enemyAgent.SetDestination(GameManager.Instance.Player.transform.position);
         }
