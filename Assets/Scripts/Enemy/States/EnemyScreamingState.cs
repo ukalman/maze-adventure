@@ -7,6 +7,7 @@ public class EnemyScreamingState : EnemyBaseState
     private float rotationDuration = 1.5f; 
     public override void EnterState(EnemyController controller)
     {
+        controller.State = "Scream";
         animFinished = false;
         controller.enemyAgent.enabled = false;
         controller.StartCoroutine(RotateTowardsPlayerAndStartScreaming(controller));
@@ -20,7 +21,11 @@ public class EnemyScreamingState : EnemyBaseState
             return;
         }
 
-        if (!controller.playerSeen || controller.playerHealth.isDead) ExitState(controller,controller.Idle);
+        if (!controller.playerSeen || controller.playerHealth.isDead)
+        {
+            ExitState(controller,controller.Idle);
+            return;
+        }
         
         if (animFinished) 
         {

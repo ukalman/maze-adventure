@@ -10,7 +10,10 @@ public class CrouchState : MovementBaseState
 
     public override void UpdateState(MovementStateManager movement)
     {
-        if (Input.GetKey(KeyCode.LeftShift)) ExitState(movement, movement.Run);
+        if (Input.GetKey(KeyCode.LeftShift))
+        {   
+            if (movement.currentSprintTime / movement.maxSprintTime >= movement.sprintThreshold) ExitState(movement, movement.Run);
+        }
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             if (movement.dir.magnitude < 0.1f) ExitState(movement, movement.Idle);

@@ -15,7 +15,7 @@ public class FirstAid : MonoBehaviour
     {
         if (isPlayerIn && !isUsed)
         {
-            if (Input.GetKeyDown(KeyCode.E) && playerHealth.Health < 100.0f)
+            if (Input.GetKeyDown(KeyCode.E) && playerHealth.CurrentHealth < 100.0f)
             {
                 EventManager.Instance.InvokeOnFirstAidUsed();
                 isUsed = true;

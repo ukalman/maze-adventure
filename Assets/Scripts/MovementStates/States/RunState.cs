@@ -1,17 +1,25 @@
 
+using System.Collections;
 using UnityEngine;
 
 public class RunState : MovementBaseState
 {
+    
     public override void EnterState(MovementStateManager movement)
     {
-        movement.anim.SetBool("Running",true);
+        movement.StartSprinting();
+        movement.anim.SetBool("Running", true);
     }
 
     public override void UpdateState(MovementStateManager movement)
     {
-        if (Input.GetKeyUp(KeyCode.LeftShift)) ExitState(movement, movement.Walk);
-        else if (movement.dir.magnitude < 0.1f) ExitState(movement, movement.Idle);
+        if (Input.GetKeyUp(KeyCode.LeftShift) || movement.currentSprintTime <= 0)
+        {
+            ExitState(movement, movement.Walk);
+            return;
+        }
+
+        if (movement.dir.magnitude < 0.1f) ExitState(movement, movement.Idle);
         
         if (movement.zInput < 0.0f) movement.currentMoveSpeed = movement.runBackSpeed;
         else movement.currentMoveSpeed = movement.runSpeed;
@@ -25,8 +33,10 @@ public class RunState : MovementBaseState
     
     private void ExitState(MovementStateManager movement, MovementBaseState stateToSwitch)
     {
+        movement.StopSprinting(); // Ensure sprinting stops on exit
         movement.anim.SetBool("Running", false);
         movement.SwitchState(stateToSwitch);
     }
+    
 }
 

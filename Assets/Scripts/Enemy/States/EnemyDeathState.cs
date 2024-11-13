@@ -9,6 +9,8 @@ public class EnemyDeathState : EnemyBaseState
     
     public override void EnterState(EnemyController controller)
     {
+        controller.State = "Death";
+        
         if (controller.enemyAgent != null)
         {
             controller.enemyAgent.enabled = true;

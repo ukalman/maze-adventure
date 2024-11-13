@@ -82,6 +82,7 @@ public class DetectionStateManager : MonoBehaviour
                 Debug.DrawRay(enemyEyes.position, hit.point, Color.green);
                 return true;
             }
+            
         }
 
         return false;

@@ -3,27 +3,33 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    public float Health { get; private set; }
+    public float CurrentHealth { get; private set; }
+
+    [SerializeField] private float maxHealth = 100.0f;
     [SerializeField] private float healAmount = 25.0f;
     
     [HideInInspector] public bool isDead;
 
     private RagdollManager ragdollManager;
+
+    [SerializeField] private PlayerHealthbar healthBar;
     
     private void Start()
     {
-        Health = 100.0f;
+        CurrentHealth = maxHealth;
         ragdollManager = GetComponent<RagdollManager>();
         EventManager.Instance.OnFirstAidUsed += Heal;
+        healthBar.SetMaxHealth(CurrentHealth);
     }
 
     public void TakeDamage(float damage)
     {
-        if (Health > 0.0f)
+        if (CurrentHealth > 0.0f)
         {
-            Health -= damage;
-            if (Health <= 0.0f) PlayerDeath();
-            Debug.Log($"Player took {damage} damage, New health is: {Health}");
+            CurrentHealth -= damage;
+            if (CurrentHealth <= 0.0f) PlayerDeath();
+            Debug.Log($"Player took {damage} damage, New health is: {CurrentHealth}");
+            healthBar.SetHealth(CurrentHealth);
         }
     }
 
@@ -42,8 +48,9 @@ public class PlayerHealth : MonoBehaviour
 
     private void Heal()
     {
-        Health += healAmount;
-        Debug.Log($"Healed! New health is {Health}");
+        CurrentHealth += healAmount;
+        Debug.Log($"Healed! New health is {CurrentHealth}");
+        healthBar.SetHealth(CurrentHealth);
     }
     
 

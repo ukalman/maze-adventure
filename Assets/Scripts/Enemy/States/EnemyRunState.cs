@@ -1,9 +1,11 @@
 
+using UnityEngine;
+
 public class EnemyRunState : EnemyBaseState
 {
     public override void EnterState(EnemyController controller)
     {
-        
+        controller.State = "Run";
         if (controller.anim != null)
         {
             controller.anim.speed = 1.0f;
@@ -25,9 +27,13 @@ public class EnemyRunState : EnemyBaseState
         if (controller.enemyAgent != null) controller.enemyAgent.SetDestination(GameManager.Instance.Player.transform.position);
 
         if (controller.isDead) ExitState(controller,controller.Death);
-        
-        
-        if (!controller.playerSeen || controller.playerHealth.isDead) ExitState(controller,controller.Idle);
+
+
+        if (!controller.playerSeen || controller.playerHealth.isDead)
+        {
+            Debug.Log("yes, this is the playerSeen : " + controller.playerSeen);
+            ExitState(controller,controller.Idle);
+        }
 
         if (controller.IsPlayerInAttackingDist() && controller.playerSeen) ExitState(controller, controller.Attack);
         

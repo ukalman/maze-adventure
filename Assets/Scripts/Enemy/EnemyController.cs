@@ -21,6 +21,8 @@ public class EnemyController : MonoBehaviour
     public NavMeshAgent enemyAgent;
     
     #region EnemyStates
+
+    public string State;
     
     public EnemyBaseState CurrentState { get; private set; }
 

@@ -11,6 +11,7 @@ public class EnemyIdleState : EnemyBaseState
     
     public override void EnterState(EnemyController controller)
     {
+        controller.State = "Idle";
         if (controller.enemyAgent != null)
         {
             controller.enemyAgent.enabled = true;
@@ -20,6 +21,13 @@ public class EnemyIdleState : EnemyBaseState
 
         if (controller.anim != null)
         {
+            
+            controller.anim.SetBool("ZombieScreaming", false);;
+            /*
+            controller.anim.SetBool("ZombieRunning", false);
+            controller.anim.SetBool("ZombieWalking", false);
+            controller.anim.SetBool("ZombieAttacking", false);
+            */
             controller.anim.speed = 1.0f;
         }
         
