@@ -10,10 +10,13 @@ public class EnemyController : MonoBehaviour
     public float walkSpeed = 1.0f;
     public float distToPlayer;
     public float attackDist = 2.0f;
+    private float attackDamage = 25.0f;
     
     public bool playerSeen;
     public bool isDead;
     private bool isDeadDoubleCheck;
+
+    public PlayerHealth playerHealth;
     
     public NavMeshAgent enemyAgent;
     
@@ -44,6 +47,7 @@ public class EnemyController : MonoBehaviour
         ragdollManager = GetComponent<RagdollManager>();
         SwitchState(Idle);
         isDead = health.isDead;
+        playerHealth = GameManager.Instance.Player.GetComponent<PlayerHealth>();
     }
 
     private void Update()
@@ -64,12 +68,25 @@ public class EnemyController : MonoBehaviour
 
     public bool IsPlayerInAttackingDist()
     {
-        if (distToPlayer != 0.0f)
+        if (playerHealth != null)
         {
-            return distToPlayer <= attackDist;
+            if (distToPlayer != 0.0f && !playerHealth.isDead)
+            {
+                return distToPlayer <= attackDist;
+            }
         }
-
+        
         return false;
+    }
+
+    public void AttackPlayer()
+    {
+        if (playerHealth != null)
+        {
+            if (playerHealth.isDead) return;
+            playerHealth.TakeDamage(attackDamage);
+        }
+        
     }
 
     private IEnumerator OnDeath()

@@ -96,7 +96,6 @@ public class EnemyIdleState : EnemyBaseState
 
         if (wanderTarget != Vector3.zero)
         {
-            Debug.Log("Wandering started, here is our destination: " + wanderTarget);
             controller.enemyAgent.isStopped = false;
             controller.enemyAgent.SetDestination(wanderTarget);
             
@@ -109,7 +108,6 @@ public class EnemyIdleState : EnemyBaseState
 
     private void StopWandering(EnemyController controller)
     {
-        Debug.Log("Stop wandering bro");
         isWandering = false;
         idleTimer = 0.0f;
         wanderInterval = Random.Range(5.0f, 10.0f); // Reset the interval to idle again

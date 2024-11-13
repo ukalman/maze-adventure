@@ -20,6 +20,8 @@ public class EnemyScreamingState : EnemyBaseState
             return;
         }
 
+        if (!controller.playerSeen || controller.playerHealth.isDead) ExitState(controller,controller.Idle);
+        
         if (animFinished) 
         {
             if (controller.playerSeen) 
@@ -30,10 +32,7 @@ public class EnemyScreamingState : EnemyBaseState
             return;
         }
 
-        if (controller.IsPlayerInAttackingDist()) 
-        {
-            ExitState(controller, controller.Attack);
-        }
+        if (controller.IsPlayerInAttackingDist() && controller.playerSeen) ExitState(controller, controller.Attack);
         
     }
 

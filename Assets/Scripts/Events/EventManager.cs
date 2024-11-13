@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -20,6 +21,11 @@ public class EventManager : MonoBehaviour
     }
     
     // convert all these UnityActions to delegates and events afterwards. ENCOURAGE BEING EXPLICIT!
-    
-  
+    public event Action OnFirstAidUsed;
+
+    public void InvokeOnFirstAidUsed()
+    {
+        OnFirstAidUsed?.Invoke();
+    }
+
 }

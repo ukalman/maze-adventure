@@ -20,14 +20,8 @@ public class EnemyAttackState : EnemyBaseState
     public override void UpdateState(EnemyController controller)
     {
         if (controller.isDead) ExitState(controller,controller.Death);
-        if (!controller.playerSeen)
-        {
-            ExitState(controller,controller.Idle);
-        }
-        if (!controller.IsPlayerInAttackingDist())
-        {
-            ExitState(controller, controller.Run);
-        }
+        if (!controller.playerSeen || controller.playerHealth.isDead) ExitState(controller,controller.Idle);
+        if (!controller.IsPlayerInAttackingDist() && controller.playerSeen) ExitState(controller, controller.Run);
         
         controller.transform.LookAt(GameManager.Instance.Player.transform.position);
         

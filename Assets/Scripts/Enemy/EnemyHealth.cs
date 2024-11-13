@@ -26,8 +26,6 @@ public class EnemyHealth : MonoBehaviour
         {
             Health -= damage;
             if (Health <= 0.0f) EnemyDeath();
-
-            else Debug.Log("Hit!");   
         }
     }
 
@@ -43,7 +41,6 @@ public class EnemyHealth : MonoBehaviour
 
         else
         {
-            Debug.Log("Ow yeah, he is running!");
             isDead = true;
         }
         // gameObject.layer = LayerMask.NameToLayer("DeadEnemy");
@@ -54,7 +51,6 @@ public class EnemyHealth : MonoBehaviour
             GameManager.Instance.SetLayerRecursively(child.gameObject, deadEnemyLayer);
         }
         // isDead is set to true in Bullet script
-        Debug.Log("Enemy died!");
     }
     
 }
