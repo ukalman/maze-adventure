@@ -4,17 +4,26 @@ using UnityEngine.UI;
 
 public class PlayerSprintbar : MonoBehaviour
 {
-    private Slider slider;
+    [SerializeField] private Slider slider;
     public Image fill;
     private Coroutine currentCoroutine; // Track current coroutine to avoid overlap
 
-    private void Start()
+    
+    private void Awake()
     {
         slider = GetComponent<Slider>();
+    }
+    private void Start()
+    {
+        //slider = GetComponent<Slider>();
     }
 
     public void SetMaxValue(float value)
     {
+        if (slider == null)
+        {
+            Debug.Log("it is null bro sprintbar");
+        }
         slider.maxValue = value;
         slider.value = value;
     }

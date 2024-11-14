@@ -6,6 +6,9 @@ using Random = UnityEngine.Random;
 
 public class WeaponManager : MonoBehaviour
 {
+    public string weaponName;
+    public Sprite weaponSprite;
+    
     [Header("Fire Rate")]
     [SerializeField] private float fireRate;
     [SerializeField] private bool semiAuto;
@@ -89,6 +92,7 @@ public class WeaponManager : MonoBehaviour
         recoil.TriggerRecoil();
         TriggerMuzzleFlash();
         ammo.currentAmmo--;
+        EventManager.Instance.InvokeOnAmmoChanged();
         for (int i = 0; i < bulletsPerShot; i++)
         {
             GameObject bulletGO = Instantiate(bullet, barrelPos.position, barrelPos.rotation);
@@ -105,7 +109,9 @@ public class WeaponManager : MonoBehaviour
     private void PlayGunshotSound()
     {
         int randomIndex = Random.Range(0, gunShotSounds.Length);
-        audioSource.PlayOneShot(gunShotSounds[randomIndex]);
+        float volume = 1.0f;
+        if (weaponName.Equals("AK-47")) volume = 0.3f;
+        audioSource.PlayOneShot(gunShotSounds[randomIndex], volume);
     }
 
     private void TriggerMuzzleFlash()

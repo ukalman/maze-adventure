@@ -1,4 +1,5 @@
 
+using System;
 using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
@@ -13,13 +14,21 @@ public class PlayerHealth : MonoBehaviour
     private RagdollManager ragdollManager;
 
     [SerializeField] private PlayerHealthbar healthBar;
+
+    [SerializeField] private DamageEffect damageEffect;
     
     private void Start()
     {
         CurrentHealth = maxHealth;
         ragdollManager = GetComponent<RagdollManager>();
+        damageEffect = GameManager.Instance.transform.GetComponent<DamageEffect>();
         EventManager.Instance.OnFirstAidUsed += Heal;
         healthBar.SetMaxHealth(CurrentHealth);
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnFirstAidUsed -= Heal;
     }
 
     public void TakeDamage(float damage)
@@ -30,6 +39,7 @@ public class PlayerHealth : MonoBehaviour
             if (CurrentHealth <= 0.0f) PlayerDeath();
             Debug.Log($"Player took {damage} damage, New health is: {CurrentHealth}");
             healthBar.SetHealth(CurrentHealth);
+            damageEffect.TriggerDamageEffect(CurrentHealth / maxHealth);
         }
     }
 

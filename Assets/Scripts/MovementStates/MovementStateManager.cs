@@ -51,7 +51,6 @@ public class MovementStateManager : MonoBehaviour
     #region Sprinting
 
     public PlayerSprintbar sprintbarUI;
-    public Coroutine sprintCoroutine;
     [SerializeField] public float maxSprintTime = 7.0f;
     [SerializeField] public float sprintRefillRate = 1.0f;
     [SerializeField] public float sprintDepletionRate = 1.0f;
@@ -72,6 +71,10 @@ public class MovementStateManager : MonoBehaviour
         anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
         currentSprintTime = maxSprintTime;
+        if (sprintbarUI == null)
+        {
+            Debug.Log("Yes, sprintbar is null in movementstate.");
+        }
         sprintbarUI.SetMaxValue(maxSprintTime); 
         SwitchState(Idle);
     }
