@@ -5,19 +5,18 @@ using UnityEngine.Rendering.Universal;
 
 public class DamageEffect : MonoBehaviour
 {
-    public Volume volume; // Reference to your Global Volume
+    public Volume volume; 
     private Vignette vignette;
     private ColorAdjustments colorAdjustments;
     private Coroutine damageEffectCoroutine;
 
     void Start()
     {
-        // Get the Vignette and Color Adjustments components
         if (volume.profile.TryGet(out vignette) && volume.profile.TryGet(out colorAdjustments))
         {
-            vignette.intensity.value = 0f; // Set initial vignette intensity to 0
-            vignette.color.value = Color.red; // Set vignette color to red
-            colorAdjustments.postExposure.value = 0f; // Set initial exposure to 0
+            vignette.intensity.value = 0.0f; 
+            vignette.color.value = Color.red;
+            colorAdjustments.postExposure.value = 0.0f; 
         }
     }
 
@@ -34,23 +33,20 @@ public class DamageEffect : MonoBehaviour
     private IEnumerator DamageEffectCoroutine(float healthPercentage)
     {
         // Adjust intensity based on health (low health -> higher intensity)
-        float intensityMultiplier = 1f - healthPercentage; // e.g., if health is 50%, multiplier is 0.5
+        float intensityMultiplier = 1f - healthPercentage; 
 
-        float duration = 0.5f; // Duration of the effect
-        float fadeOutTime = 1.0f; // Fade-out time
+        float duration = 0.5f; 
+        float fadeOutTime = 1.0f; 
 
         // Calculate vignette intensity based on health
-        float targetVignetteIntensity = Mathf.Lerp(0.2f, 0.5f, intensityMultiplier); // Adjust between 0.2 and 0.5
+        float targetVignetteIntensity = Mathf.Lerp(0.2f, 0.5f, intensityMultiplier); 
         float targetExposure = Mathf.Lerp(0f, 0.5f, intensityMultiplier); // Slightly increase exposure
-
-        // Apply the initial intense values
+        
         vignette.intensity.value = targetVignetteIntensity;
         colorAdjustments.postExposure.value = targetExposure;
-
-        // Wait for the effect to last
+        
         yield return new WaitForSeconds(duration);
-
-        // Gradually fade out the effect
+        
         float elapsed = 0f;
         while (elapsed < fadeOutTime)
         {
@@ -59,8 +55,7 @@ public class DamageEffect : MonoBehaviour
             colorAdjustments.postExposure.value = Mathf.Lerp(targetExposure, 0f, elapsed / fadeOutTime);
             yield return null;
         }
-
-        // Reset the intensity after fade-out
+        
         vignette.intensity.value = 0f;
         colorAdjustments.postExposure.value = 0f;
 

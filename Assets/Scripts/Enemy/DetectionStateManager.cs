@@ -48,6 +48,8 @@ public class DetectionStateManager : MonoBehaviour
     public bool PlayerSeen()
     {
         if (playerHealth != null && playerHealth.isDead) return false;
+        
+        enemyEyes.LookAt(playerHead.position);
         Debug.DrawRay(enemyEyes.position, enemyEyes.forward, Color.red);
         if (Vector3.Distance(enemyEyes.position, playerHead.position) > lookDistance)
         {
@@ -58,7 +60,7 @@ public class DetectionStateManager : MonoBehaviour
 
         float angleToPlayer = Vector3.Angle(enemyEyes.parent.forward, dirToPlayer);
 
-        enemyEyes.LookAt(playerHead.position);
+        
 
         if (enemyController.CurrentState != enemyController.Attack)
         {

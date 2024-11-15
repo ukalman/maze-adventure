@@ -11,6 +11,7 @@ public class EnemyScreamingState : EnemyBaseState
         animFinished = false;
         controller.enemyAgent.enabled = false;
         controller.StartCoroutine(RotateTowardsPlayerAndStartScreaming(controller));
+        controller.StartCoroutine(controller.enemyAudio.PlaySound(EnemyAudioState.Scream));
     }
 
     public override void UpdateState(EnemyController controller)
@@ -43,9 +44,8 @@ public class EnemyScreamingState : EnemyBaseState
 
     public override void ExitState(EnemyController controller, EnemyBaseState stateToSwitch)
     {
-        if (controller.anim != null) 
-            controller.anim.SetBool("ZombieScreaming", false);
-
+        controller.PreviousState = this;
+        if (controller.anim != null) controller.anim.SetBool("ZombieScreaming", false);
         controller.SwitchState(stateToSwitch);
     }
     
@@ -95,6 +95,7 @@ public class EnemyScreamingState : EnemyBaseState
         if (!controller.isDead)
         {
             animFinished = true;
+            controller.anim.SetBool("ZombieScreaming", false);
         }
     }
 

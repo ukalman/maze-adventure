@@ -3,6 +3,12 @@ using UnityEngine;
 
 public class EnemyRunState : EnemyBaseState
 {
+
+    private float timer;
+    private float duration;
+    private bool canMakeRunSound;
+
+    
     public override void EnterState(EnemyController controller)
     {
         controller.State = "Run";
@@ -19,11 +25,29 @@ public class EnemyRunState : EnemyBaseState
             controller.enemyAgent.isStopped = false;
             controller.enemyAgent.SetDestination(GameManager.Instance.Player.transform.position);
         }
+
         
+        duration = 2.0f;
+        timer = 0.0f;
+        
+        if (controller.PreviousState == controller.Attack) canMakeRunSound = false;
+        else canMakeRunSound = true;
+
     }
 
     public override void UpdateState(EnemyController controller)
     {
+
+        timer += Time.deltaTime;
+
+        if (timer >= duration && !canMakeRunSound)
+        {
+            canMakeRunSound = true;
+            timer = 0.0f;
+        }
+        
+        if (canMakeRunSound) controller.StartCoroutine(controller.enemyAudio.PlaySound(EnemyAudioState.Run));
+        
         if (controller.enemyAgent != null) controller.enemyAgent.SetDestination(GameManager.Instance.Player.transform.position);
 
         if (controller.isDead) ExitState(controller,controller.Death);
@@ -44,6 +68,7 @@ public class EnemyRunState : EnemyBaseState
     public override void ExitState(EnemyController controller, EnemyBaseState stateToSwitch)
     {
         if (controller.anim != null) controller.anim.SetBool("ZombieRunning",false);
+        controller.PreviousState = this;
         controller.SwitchState(stateToSwitch);
     }
 }

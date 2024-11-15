@@ -9,6 +9,8 @@ public class ReloadState : ActionBaseState
         actions.rightHandAim.weight = 0.0f;
         actions.leftHandIK.weight = 0.0f;
         actions.anim.SetTrigger("Reload");
+        
+        actions.currentStateName = "Reload";
     }
 
     public override void UpdateState(ActionStateManager actions)

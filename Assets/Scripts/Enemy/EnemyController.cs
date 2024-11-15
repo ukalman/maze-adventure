@@ -25,7 +25,8 @@ public class EnemyController : MonoBehaviour
     public string State;
     
     public EnemyBaseState CurrentState { get; private set; }
-
+    public EnemyBaseState PreviousState;
+    
     public EnemyIdleState Idle = new EnemyIdleState();
     public EnemyRunState Run = new EnemyRunState();
     public EnemyAttackState Attack = new EnemyAttackState();
@@ -40,11 +41,14 @@ public class EnemyController : MonoBehaviour
     public RagdollManager ragdollManager;
 
     [SerializeField] private Material transparentMat1, transparentMat2;
+
+    public EnemyAudio enemyAudio;
     
     private void Start()
     {
         anim = GetComponent<Animator>();
         enemyAgent = GetComponent<NavMeshAgent>();
+        enemyAudio = GetComponent<EnemyAudio>();
         health = GetComponent<EnemyHealth>();
         ragdollManager = GetComponent<RagdollManager>();
         SwitchState(Idle);

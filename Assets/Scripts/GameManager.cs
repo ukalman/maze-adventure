@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     
     public Transform playerHead;
     public GameObject Player;
+
+    public GameObject firstAidText;
     
     private void Awake()
     {
