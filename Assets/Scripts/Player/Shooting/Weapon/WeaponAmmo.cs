@@ -16,6 +16,7 @@ public class WeaponAmmo : MonoBehaviour
     private void Start()
     {
         currentAmmo = clipSize;
+        EventManager.Instance.InvokeOnAmmoChanged();
     }
 
     public void Reload()
@@ -40,6 +41,7 @@ public class WeaponAmmo : MonoBehaviour
                 extraAmmo = 0;
             }
         }
+        EventManager.Instance.InvokeOnAmmoChanged();
     }
     
     

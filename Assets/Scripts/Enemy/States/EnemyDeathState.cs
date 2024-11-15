@@ -9,7 +9,8 @@ public class EnemyDeathState : EnemyBaseState
     
     public override void EnterState(EnemyController controller)
     {
-        Debug.Log("Yes, we're in death state");
+        controller.State = "Death";
+        
         if (controller.enemyAgent != null)
         {
             controller.enemyAgent.enabled = true;
@@ -20,9 +21,9 @@ public class EnemyDeathState : EnemyBaseState
             controller.anim.speed = 1.0f;
             controller.anim.SetTrigger("ZombieDeath");
             //controller.StartCoroutine(WaitForDeathAnimation(controller));
-        }  
-        
-  
+        }
+
+        controller.StartCoroutine(controller.enemyAudio.PlaySound(EnemyAudioState.Death));
     }
 
     public override void UpdateState(EnemyController controller)

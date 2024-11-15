@@ -7,9 +7,11 @@ public class EnemyScreamingState : EnemyBaseState
     private float rotationDuration = 1.5f; 
     public override void EnterState(EnemyController controller)
     {
+        controller.State = "Scream";
         animFinished = false;
         controller.enemyAgent.enabled = false;
         controller.StartCoroutine(RotateTowardsPlayerAndStartScreaming(controller));
+        controller.StartCoroutine(controller.enemyAudio.PlaySound(EnemyAudioState.Scream));
     }
 
     public override void UpdateState(EnemyController controller)
@@ -20,6 +22,12 @@ public class EnemyScreamingState : EnemyBaseState
             return;
         }
 
+        if (!controller.playerSeen || controller.playerHealth.isDead)
+        {
+            ExitState(controller,controller.Idle);
+            return;
+        }
+        
         if (animFinished) 
         {
             if (controller.playerSeen) 
@@ -30,18 +38,14 @@ public class EnemyScreamingState : EnemyBaseState
             return;
         }
 
-        if (controller.IsPlayerInAttackingDist()) 
-        {
-            ExitState(controller, controller.Attack);
-        }
+        if (controller.IsPlayerInAttackingDist() && controller.playerSeen) ExitState(controller, controller.Attack);
         
     }
 
     public override void ExitState(EnemyController controller, EnemyBaseState stateToSwitch)
     {
-        if (controller.anim != null) 
-            controller.anim.SetBool("ZombieScreaming", false);
-
+        controller.PreviousState = this;
+        if (controller.anim != null) controller.anim.SetBool("ZombieScreaming", false);
         controller.SwitchState(stateToSwitch);
     }
     
@@ -91,6 +95,7 @@ public class EnemyScreamingState : EnemyBaseState
         if (!controller.isDead)
         {
             animFinished = true;
+            controller.anim.SetBool("ZombieScreaming", false);
         }
     }
 

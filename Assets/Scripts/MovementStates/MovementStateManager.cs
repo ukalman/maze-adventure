@@ -6,15 +6,13 @@ using UnityEngine.Serialization;
 
 public class MovementStateManager : MonoBehaviour
 {
-    
-    
     #region Movement
     public float currentMoveSpeed;
     public float walkSpeed = 3.0f, walkBackSpeed = 2.0f;
     public float runSpeed = 7.0f, runBackSpeed = 5.0f;
     public float crouchSpeed = 2.0f, crouchBackSpeed = 1.0f;
     public float airSpeed = 1.5f;
-    
+
     [HideInInspector] public Vector3 dir;
     [HideInInspector] public float xInput, zInput;
     private CharacterController controller;
@@ -41,7 +39,7 @@ public class MovementStateManager : MonoBehaviour
 
     public MovementBaseState PreviousState;
     public MovementBaseState CurrentState { get; private set; }
-    
+
     public IdleState Idle = new IdleState();
     public WalkState Walk = new WalkState();
     public CrouchState Crouch = new CrouchState();
@@ -49,8 +47,20 @@ public class MovementStateManager : MonoBehaviour
     public JumpState Jump = new JumpState();
 
     #endregion
-    
-    
+
+    #region Sprinting
+
+    public PlayerSprintbar sprintbarUI;
+    [SerializeField] public float maxSprintTime = 7.0f;
+    [SerializeField] public float sprintRefillRate = 1.0f;
+    [SerializeField] public float sprintDepletionRate = 1.0f;
+    [SerializeField] public float refillDelay = 2.0f;
+    public float sprintThreshold = 0.15f; 
+    public float currentSprintTime;
+    private Coroutine sprintRefillCoroutine;
+    private Coroutine sprintDepletionCoroutine;
+
+    #endregion
 
     [HideInInspector] public Animator anim;
     private static readonly int XInput = Animator.StringToHash("xInput");
@@ -60,6 +70,12 @@ public class MovementStateManager : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
+        currentSprintTime = maxSprintTime;
+        if (sprintbarUI == null)
+        {
+            Debug.Log("Yes, sprintbar is null in movementstate.");
+        }
+        sprintbarUI.SetMaxValue(maxSprintTime); 
         SwitchState(Idle);
     }
     
@@ -94,6 +110,64 @@ public class MovementStateManager : MonoBehaviour
         }
     }
 
+    public void StartSprinting()
+    {
+        if (sprintRefillCoroutine != null)
+        {
+            StopCoroutine(sprintRefillCoroutine);
+            sprintRefillCoroutine = null; // Stop refilling if sprinting starts
+        }
+
+        if (sprintDepletionCoroutine == null)
+        {
+            sprintDepletionCoroutine = StartCoroutine(HandleSprintDepletion());
+        }
+    }
+
+    public void StopSprinting()
+    {
+        if (sprintDepletionCoroutine != null)
+        {
+            StopCoroutine(sprintDepletionCoroutine);
+            sprintDepletionCoroutine = null;
+        }
+
+        // Start the refill coroutine with delay
+        if (sprintRefillCoroutine == null)
+        {
+            sprintRefillCoroutine = StartCoroutine(HandleSprintRefill());
+        }
+    }
+
+    private IEnumerator HandleSprintDepletion()
+    {
+        while (currentSprintTime > 0)
+        {
+            currentSprintTime -= sprintDepletionRate * Time.deltaTime;
+            currentSprintTime = Mathf.Max(currentSprintTime, 0);
+            sprintbarUI.SetValue(currentSprintTime); // Update sprint bar
+            yield return null;
+        }
+
+        StopSprinting(); // Start refill when sprint meter is depleted
+    }
+
+    private IEnumerator HandleSprintRefill()
+    {
+        yield return new WaitForSeconds(refillDelay); // Wait before starting refill
+        
+        while (currentSprintTime < maxSprintTime)
+        {
+            currentSprintTime += sprintRefillRate * Time.deltaTime;
+            currentSprintTime = Mathf.Min(currentSprintTime, maxSprintTime);
+            sprintbarUI.SetValue(currentSprintTime); // Update sprint bar
+            yield return null;
+        }
+
+        sprintRefillCoroutine = null; // Reset coroutine reference when done
+    }
+    
+    
     public bool IsGrounded()
     {
         spherePos = new Vector3(transform.position.x, transform.position.y + controller.radius - 0.08f, transform.position.z);

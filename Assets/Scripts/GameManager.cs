@@ -10,6 +10,9 @@ public class GameManager : MonoBehaviour
     
     public Transform playerHead;
     public GameObject Player;
+
+    public GameObject firstAidText;
+    
     private void Awake()
     {
         if (Instance == null)
@@ -29,6 +32,7 @@ public class GameManager : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        
     }
 
     
@@ -46,4 +50,5 @@ public class GameManager : MonoBehaviour
             SetLayerRecursively(child.gameObject, newLayer);
         }
     }
+
 }

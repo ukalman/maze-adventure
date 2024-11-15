@@ -6,8 +6,9 @@ using UnityEngine.Serialization;
 
 public class ActionStateManager : MonoBehaviour
 {
-    [HideInInspector] public ActionBaseState CurrentState { get; private set; }
-
+    public ActionBaseState CurrentState { get; private set; }
+    public string currentStateName;
+    
     public ReloadState Reload = new ReloadState();
     public DefaultState Default = new DefaultState();
     public SwapState Swap = new SwapState();

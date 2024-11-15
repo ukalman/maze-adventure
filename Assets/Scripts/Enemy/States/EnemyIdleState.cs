@@ -7,10 +7,18 @@ public class EnemyIdleState : EnemyBaseState
     private float wanderInterval;
     private bool isWandering;
     private Vector3 wanderTarget;
-    private float distanceTolerance = 0.7f; 
+    private float distanceTolerance = 0.7f;
+
+    private float soundIdleTimer;
+    private float soundPlayInterval;
+
+    private float ranTimer;
+    private float waitScreamAfterRunDuration;
+    private bool canScream;
     
     public override void EnterState(EnemyController controller)
     {
+        controller.State = "Idle";
         if (controller.enemyAgent != null)
         {
             controller.enemyAgent.enabled = true;
@@ -20,16 +28,34 @@ public class EnemyIdleState : EnemyBaseState
 
         if (controller.anim != null)
         {
+            
+            controller.anim.SetBool("ZombieScreaming", false);;
+            /*
+            controller.anim.SetBool("ZombieRunning", false);
+            controller.anim.SetBool("ZombieWalking", false);
+            controller.anim.SetBool("ZombieAttacking", false);
+            */
             controller.anim.speed = 1.0f;
         }
         
         idleTimer = 0.0f;
-        wanderInterval = Random.Range(5.0f, 10.0f); // Time before switching to wander mode
+        soundIdleTimer = 0.0f;
+        wanderInterval = Random.Range(5.0f, 10.0f); 
+        soundPlayInterval = Random.Range(4.0f, 15.0f);
         isWandering = false;
+
+        ranTimer = 0.0f;
+        waitScreamAfterRunDuration = 5.0f;
+
+        if (controller.PreviousState != controller.Run) canScream = true;
+        else canScream = false;
+
+
     }
 
     public override void UpdateState(EnemyController controller)
     {
+        
         if (controller.isDead) 
         {
             StopWandering(controller);
@@ -37,11 +63,15 @@ public class EnemyIdleState : EnemyBaseState
             return;
         }
 
+        ranTimer += Time.deltaTime;
+        if (!canScream && ranTimer >= waitScreamAfterRunDuration) canScream = true;
+        
+
         if (controller.playerSeen)
         {
             StopWandering(controller);
             // 50% chance to scream or run towards the player
-            if (Random.Range(1, 100) < 50) controller.SwitchState(controller.Scream);
+            if (Random.Range(1, 100) < 90 && canScream) controller.SwitchState(controller.Scream);
             else controller.SwitchState(controller.Run);
             return;
         }
@@ -53,9 +83,20 @@ public class EnemyIdleState : EnemyBaseState
             return;
         }
 
-        // Wandering logic
-        idleTimer += Time.deltaTime;
+        soundIdleTimer += Time.deltaTime;
+        
+        // Sound logic
+        if (soundIdleTimer >= soundPlayInterval)
+        {
+            Debug.Log("Oh yes.");
+            controller.StartCoroutine(controller.enemyAudio.PlaySound(EnemyAudioState.Idle));
+            soundPlayInterval = Random.Range(3.0f, 8.0f); 
+            soundIdleTimer = 0.0f;
+        }
 
+        // Wandering  logic
+        idleTimer += Time.deltaTime;
+        
         if (idleTimer >= wanderInterval)
         {
             if (isWandering)
@@ -96,7 +137,6 @@ public class EnemyIdleState : EnemyBaseState
 
         if (wanderTarget != Vector3.zero)
         {
-            Debug.Log("Wandering started, here is our destination: " + wanderTarget);
             controller.enemyAgent.isStopped = false;
             controller.enemyAgent.SetDestination(wanderTarget);
             
@@ -109,7 +149,6 @@ public class EnemyIdleState : EnemyBaseState
 
     private void StopWandering(EnemyController controller)
     {
-        Debug.Log("Stop wandering bro");
         isWandering = false;
         idleTimer = 0.0f;
         wanderInterval = Random.Range(5.0f, 10.0f); // Reset the interval to idle again

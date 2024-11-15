@@ -8,8 +8,9 @@ public class DetectionStateManager : MonoBehaviour
     [SerializeField] private float lookDistance = 15.0f, fov = 120.0f;
     [SerializeField] private Transform enemyEyes;
     private Transform playerHead;
-    private Transform originalEnemyEyes;
+    private PlayerHealth playerHealth;
     
+    private Transform originalEnemyEyes;
     private EnemyController enemyController;
     
     
@@ -17,6 +18,7 @@ public class DetectionStateManager : MonoBehaviour
     void Start()
     {
         playerHead = GameManager.Instance.playerHead;
+        playerHealth = GameManager.Instance.Player.GetComponent<PlayerHealth>();
         enemyController = GetComponent<EnemyController>();
     }
 
@@ -32,12 +34,12 @@ public class DetectionStateManager : MonoBehaviour
         {
             enemyController.distToPlayer = Vector3.Distance(transform.position, playerHead.position);
             enemyController.playerSeen = true;
-            Debug.Log("Player is seen: ");
+            //Debug.Log("Player is seen: ");
         }
         else
         {
             enemyController.playerSeen = false;
-            Debug.Log("Where are you... ");
+            //Debug.Log("Where are you... ");
         }
         
         // player'ı önceden görmüşse ama şimdi görmüyorsa birkaç saniye halen görmesini, veya son gördüğü yeri kaydetmesini sağla
@@ -45,6 +47,9 @@ public class DetectionStateManager : MonoBehaviour
 
     public bool PlayerSeen()
     {
+        if (playerHealth != null && playerHealth.isDead) return false;
+        
+        enemyEyes.LookAt(playerHead.position);
         Debug.DrawRay(enemyEyes.position, enemyEyes.forward, Color.red);
         if (Vector3.Distance(enemyEyes.position, playerHead.position) > lookDistance)
         {
@@ -55,7 +60,7 @@ public class DetectionStateManager : MonoBehaviour
 
         float angleToPlayer = Vector3.Angle(enemyEyes.parent.forward, dirToPlayer);
 
-        enemyEyes.LookAt(playerHead.position);
+        
 
         if (enemyController.CurrentState != enemyController.Attack)
         {
@@ -76,10 +81,10 @@ public class DetectionStateManager : MonoBehaviour
 
             if (hit.transform.CompareTag(playerHead.tag))
             {
-                Debug.Log("YESSSS");
                 Debug.DrawRay(enemyEyes.position, hit.point, Color.green);
                 return true;
             }
+            
         }
 
         return false;

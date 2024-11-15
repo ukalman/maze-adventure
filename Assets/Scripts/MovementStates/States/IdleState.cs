@@ -14,7 +14,8 @@ public class IdleState : MovementBaseState
         {
             if (Input.GetKey(KeyCode.LeftShift))
             {
-                movement.SwitchState(movement.Run);
+                if (movement.currentSprintTime / movement.maxSprintTime >= movement.sprintThreshold) movement.SwitchState(movement.Run);
+                
             }
             else
             {

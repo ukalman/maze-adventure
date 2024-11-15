@@ -9,6 +9,8 @@ public class SwapState : ActionBaseState
         actions.anim.SetTrigger("SwapWeapon");
         actions.leftHandIK.weight = 0.0f;
         actions.rightHandAim.weight = 0.0f;
+        
+        actions.currentStateName = "Swap";
     }
 
     public override void UpdateState(ActionStateManager actions)

@@ -9,10 +9,7 @@ public class RagdollManager : MonoBehaviour
     void Start()
     {
         rbs = GetComponentsInChildren<Rigidbody>();
-        foreach (Rigidbody rb in rbs)
-        {
-            rb.isKinematic = true;
-        }
+        DeactivateRagdoll();
     }
 
     public void TriggerRagdoll()

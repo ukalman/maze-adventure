@@ -10,7 +10,11 @@ public class WalkState : MovementBaseState
 
     public override void UpdateState(MovementStateManager movement)
     {
-        if (Input.GetKey(KeyCode.LeftShift)) ExitState(movement, movement.Run);
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            if (movement.currentSprintTime / movement.maxSprintTime >= movement.sprintThreshold) ExitState(movement, movement.Run);
+            
+        }
         else if (Input.GetKeyDown(KeyCode.LeftControl)) ExitState(movement, movement.Crouch);
         else if (movement.dir.magnitude < 0.1f) ExitState(movement, movement.Idle);
 

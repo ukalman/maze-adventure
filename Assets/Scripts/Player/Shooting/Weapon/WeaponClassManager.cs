@@ -9,7 +9,7 @@ public class WeaponClassManager : MonoBehaviour
     private ActionStateManager actions;
 
     public WeaponManager[] weapons;
-    private int currentWeaponIndex;
+    public int currentWeaponIndex;
 
     private void Awake()
     {
@@ -44,6 +44,7 @@ public class WeaponClassManager : MonoBehaviour
         }
         
         weapons[currentWeaponIndex].gameObject.SetActive(true);
+        EventManager.Instance.InvokeOnWeaponChanged();
     }
 
     public void WeaponPutAway()
