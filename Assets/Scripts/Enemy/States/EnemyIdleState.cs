@@ -133,8 +133,8 @@ public class EnemyIdleState : EnemyBaseState
         wanderInterval = Random.Range(5.0f, 10.0f); // Set a new interval for idling after wandering
 
         // Set the destination to a random position within the NavMesh
-        wanderTarget = GetRandomPointOnNavMesh(controller.transform.position, 10.0f); // Adjust range as needed
-
+        wanderTarget = Extensions.GetRandomPointOnNavMesh(controller.transform.position, 10.0f); // Adjust range as needed
+        
         if (wanderTarget != Vector3.zero)
         {
             controller.enemyAgent.isStopped = false;
@@ -157,19 +157,5 @@ public class EnemyIdleState : EnemyBaseState
         if (controller.anim != null) controller.anim.SetBool("ZombieWalking", false);
        
     }
-
-    // Method to get a random point within the NavMesh
-    private Vector3 GetRandomPointOnNavMesh(Vector3 origin, float distance)
-    {
-        Vector3 randomDirection = Random.insideUnitSphere * distance;
-        randomDirection += origin;
-
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(randomDirection, out hit, distance, NavMesh.AllAreas))
-        {
-            return hit.position;
-        }
-
-        return Vector3.zero; 
-    }
+    
 }

@@ -29,6 +29,10 @@ public class EventManager : MonoBehaviour
     public event Action<AmmoType, int> OnAmmoCollected;
 
     public event Action<WeaponName> OnWeaponAcquired;
+
+    public event Action OnMazeGenerated;
+
+    public event Action<int> OnEnemyDied;
     
     public void InvokeOnFirstAidUsed()
     {
@@ -55,4 +59,14 @@ public class EventManager : MonoBehaviour
         OnWeaponAcquired?.Invoke(weaponName);
     }
 
+    public void InvokeOnMazeGenerated()
+    {
+        OnMazeGenerated?.Invoke();
+    }
+
+    public void InvokeOnEnemyDied(int groupID)
+    {
+        OnEnemyDied?.Invoke(groupID);
+    }
+    
 }

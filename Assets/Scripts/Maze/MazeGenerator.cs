@@ -20,8 +20,7 @@ public class MazeGenerator : MonoBehaviour
 
     private List<List<int>> firstAidPositions;
     [SerializeField] private int firstAidCount = 5;
- 
-    public static Action onMazeGenerated;
+
     
     IEnumerator Start()
     {
@@ -53,7 +52,7 @@ public class MazeGenerator : MonoBehaviour
         ActivateFirstAidKits();
         
         GetComponent<NavMeshSurface>().BuildNavMesh();
-        onMazeGenerated?.Invoke();
+        EventManager.Instance.InvokeOnMazeGenerated();
     }
 
     private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell)
@@ -218,7 +217,22 @@ public class MazeGenerator : MonoBehaviour
     {
         return mazeWidth >= mazeDepth ? mazeWidth : mazeDepth;
     }
+
+    public MazeCell GetTopRightCell()
+    {
+        return mazeGrid[0, mazeDepth - 1];
+    }
     
+    public MazeCell GetBottomLeftCell()
+    {
+        return mazeGrid[mazeWidth - 1, 0];
+    }
+    
+    public MazeCell GetBottomRightCell()
+    {
+        return mazeGrid[mazeWidth - 1, mazeDepth - 1];
+    }
+
     void Update()
     {
         
