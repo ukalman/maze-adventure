@@ -10,8 +10,10 @@ public class EnemyHealth : MonoBehaviour
     [HideInInspector] public bool isDead;
 
     private RagdollManager ragdollManager;
-
+    
     public ParticleSystem bloodSplatterPrefab;
+
+    [SerializeField] private GameObject minimapTile;
     
     private void Start()
     {
@@ -33,6 +35,8 @@ public class EnemyHealth : MonoBehaviour
     {
         //enemyController.isDead = true;
 
+        Destroy(minimapTile);
+        
         if (enemyController.CurrentState != enemyController.Run && enemyController.CurrentState != enemyController.Scream)
         {
             Destroy(enemyController.anim);

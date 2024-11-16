@@ -20,6 +20,18 @@ public class WeaponClassManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        EventManager.Instance.OnAmmoCollected += OnAmmoCollected;
+        EventManager.Instance.OnWeaponAcquired += OnWeaponAcquired;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnAmmoCollected -= OnAmmoCollected;
+        EventManager.Instance.OnWeaponAcquired -= OnWeaponAcquired;
+    }
+
     public void SetCurrentWeapon(WeaponManager weapon)
     {
         if (actions == null) actions = GetComponent<ActionStateManager>();
@@ -55,6 +67,25 @@ public class WeaponClassManager : MonoBehaviour
     public void WeaponPulledOut()
     {
         actions.SwitchState(actions.Default);
+    }
+
+    private void OnAmmoCollected(AmmoType ammoType, int amount)
+    {
+        switch (ammoType)
+        {
+            case AmmoType.M4_556:
+                weapons[0].GetComponent<WeaponAmmo>().OnAmmoCollected(amount);
+                break;
+            case AmmoType.AK47_762:
+                weapons[1].GetComponent<WeaponAmmo>().OnAmmoCollected(amount);
+                break;
+        }
+    }
+
+    private void OnWeaponAcquired(WeaponName weaponName)
+    {
+        LevelManager.Instance.collectedAK47 = true;
+        actions.SwitchState(actions.Swap);
     }
 
 }

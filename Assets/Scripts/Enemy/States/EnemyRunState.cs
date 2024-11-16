@@ -7,11 +7,13 @@ public class EnemyRunState : EnemyBaseState
     private float timer;
     private float duration;
     private bool canMakeRunSound;
+    private Transform playerTransform;
 
     
     public override void EnterState(EnemyController controller)
     {
         controller.State = "Run";
+        playerTransform = GameManager.Instance.Player.transform;
         if (controller.anim != null)
         {
             controller.anim.speed = 1.0f;
@@ -23,7 +25,8 @@ public class EnemyRunState : EnemyBaseState
             controller.enemyAgent.enabled = true;
             controller.enemyAgent.speed = controller.runSpeed;
             controller.enemyAgent.isStopped = false;
-            controller.enemyAgent.SetDestination(GameManager.Instance.Player.transform.position);
+            //controller.enemyAgent.SetDestination(GameManager.Instance.Player.transform.position);
+            controller.enemyAgent.SetDestination(new Vector3(playerTransform.position.x, 0.1f, playerTransform.position.z));
         }
 
         
@@ -47,8 +50,12 @@ public class EnemyRunState : EnemyBaseState
         }
         
         if (canMakeRunSound) controller.StartCoroutine(controller.enemyAudio.PlaySound(EnemyAudioState.Run));
-        
-        if (controller.enemyAgent != null) controller.enemyAgent.SetDestination(GameManager.Instance.Player.transform.position);
+
+        if (controller.enemyAgent != null)
+        {
+            //controller.enemyAgent.SetDestination(GameManager.Instance.Player.transform.position);
+            controller.enemyAgent.SetDestination(new Vector3(playerTransform.position.x, 0.1f, playerTransform.position.z));
+        }
 
         if (controller.isDead) ExitState(controller,controller.Death);
 

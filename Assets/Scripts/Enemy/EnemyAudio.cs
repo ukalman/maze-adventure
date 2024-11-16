@@ -14,11 +14,14 @@ public enum EnemyAudioState : byte
 
 public class EnemyAudio : MonoBehaviour
 {
+    private EnemyController controller;
     private AudioSource audioSource;
     private Transform playerHead;
     private AudioLowPassFilter lowPassFilter;
     private float clearFrequency = 22000.0f;
     private float occludedFrequency = 500.0f; // for muffled sound
+    private float minOcclusionDistance = 2.0f;
+    private float maxOcclusionDistance = 10.0f;
 
     [SerializeField] private Transform enemyEyes;
     
@@ -32,13 +35,14 @@ public class EnemyAudio : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         lowPassFilter = GetComponent<AudioLowPassFilter>();
+        controller = GetComponent<EnemyController>();
         lowPassFilter.cutoffFrequency = clearFrequency;
         playerHead = GameManager.Instance.playerHead;
     }
 
     private void Update()
     {
-        CheckOcclusion();
+        if (controller.CurrentState != controller.Death) CheckOcclusion();
     }
 
     public IEnumerator PlaySound(EnemyAudioState state)
@@ -66,6 +70,7 @@ public class EnemyAudio : MonoBehaviour
             case EnemyAudioState.Death:
                 selectedClips = deathSFX;
                 overrideCurrentClip = true;
+                lowPassFilter.cutoffFrequency = clearFrequency;
                 break;
         }
 
@@ -88,23 +93,35 @@ public class EnemyAudio : MonoBehaviour
     
     private void CheckOcclusion()
     {
+        float distToPlayer = Vector3.Distance(enemyEyes.position, playerHead.position);
         Vector3 dirToPlayer = playerHead.position - enemyEyes.position;
         RaycastHit hit;
+
+        float targetFrequency;
 
         if (Physics.Raycast(enemyEyes.position, dirToPlayer, out hit))
         {
             
             if (hit.transform.CompareTag(playerHead.tag))
             {
-                lowPassFilter.cutoffFrequency = clearFrequency;
+                targetFrequency = clearFrequency;
+                //lowPassFilter.cutoffFrequency = clearFrequency;
             }
 
             else
             {
+                float occlusionFactor = Mathf.InverseLerp(minOcclusionDistance, maxOcclusionDistance, distToPlayer);
+                targetFrequency = Mathf.Lerp(clearFrequency, occludedFrequency, occlusionFactor);
                 Debug.Log("oh no man, this is the hit transform: " + hit.transform.name);
-                lowPassFilter.cutoffFrequency = occludedFrequency;
+                //lowPassFilter.cutoffFrequency = occludedFrequency;
             }
             
         }
+        else
+        {
+            targetFrequency = clearFrequency;
+        }
+        
+        lowPassFilter.cutoffFrequency = Mathf.Lerp(lowPassFilter.cutoffFrequency, targetFrequency, Time.deltaTime * 5f);
     }
 }

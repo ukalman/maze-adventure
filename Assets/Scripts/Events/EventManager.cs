@@ -25,6 +25,10 @@ public class EventManager : MonoBehaviour
     public event Action OnWeaponChanged;
     
     public event Action OnAmmoAmountChanged;
+
+    public event Action<AmmoType, int> OnAmmoCollected;
+
+    public event Action<WeaponName> OnWeaponAcquired;
     
     public void InvokeOnFirstAidUsed()
     {
@@ -39,6 +43,16 @@ public class EventManager : MonoBehaviour
     public void InvokeOnAmmoChanged()
     {
         OnAmmoAmountChanged?.Invoke();
+    }
+
+    public void InvokeOnAmmoCollected(AmmoType ammoType, int amount)
+    {
+        OnAmmoCollected?.Invoke(ammoType, amount);
+    }
+
+    public void InvokeOnWeaponAcquired(WeaponName weaponName)
+    {
+        OnWeaponAcquired?.Invoke(weaponName);
     }
 
 }

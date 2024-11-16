@@ -22,7 +22,8 @@ public class DefaultState : ActionBaseState
         {
             actions.SwitchState(actions.Reload);
         }
-        else if (Input.mouseScrollDelta.y != 0.0f)
+        // TODO change this later, not suitable for new weapons
+        else if (Input.mouseScrollDelta.y != 0.0f && LevelManager.Instance.collectedAK47)
         {
             scrollDirection = Input.mouseScrollDelta.y;
             actions.SwitchState(actions.Swap);

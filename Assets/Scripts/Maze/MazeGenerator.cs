@@ -18,6 +18,9 @@ public class MazeGenerator : MonoBehaviour
     
     private MazeCell[,] mazeGrid;
 
+    private List<List<int>> firstAidPositions;
+    [SerializeField] private int firstAidCount = 5;
+ 
     public static Action onMazeGenerated;
     
     IEnumerator Start()
@@ -45,6 +48,10 @@ public class MazeGenerator : MonoBehaviour
         }
 
         yield return GenerateMaze(null, mazeGrid[0,0]);
+
+        firstAidPositions = GetRandomPositionsFrom2DArray(mazeWidth, mazeDepth, firstAidCount);
+        ActivateFirstAidKits();
+        
         GetComponent<NavMeshSurface>().BuildNavMesh();
         onMazeGenerated?.Invoke();
     }
@@ -67,6 +74,7 @@ public class MazeGenerator : MonoBehaviour
             }
         } while (nextCell != null);
         
+        
     }
 
     private MazeCell GetNextUnvisitedCell(MazeCell currentCell)
@@ -74,7 +82,6 @@ public class MazeGenerator : MonoBehaviour
         var unvisitedCells = GetUnvisitedCells(currentCell);
 
         return unvisitedCells.OrderBy(_ => Random.Range(1, 10)).FirstOrDefault();
-        
     }
 
     private IEnumerable<MazeCell> GetUnvisitedCells(MazeCell currentCell)
@@ -157,8 +164,59 @@ public class MazeGenerator : MonoBehaviour
             currentCell.ClearFrontWall();
             return;
         }
+    }
+
+    private void ActivateFirstAidKits()
+    {
+        for (int i = 0; i < firstAidCount; i++)
+        {
+            mazeGrid[firstAidPositions[i][0],firstAidPositions[i][1]].ActivateFirstAidRandomly();
+        }
         
+        for (int x = 0; x < mazeWidth; x++)
+        {
+            for (int z = 0; z < mazeDepth; z++)
+            {
+                if (mazeGrid[x,z].hasFirstAid) continue;
+                mazeGrid[x,z].DestroyAllFirstAidKits();
+            }
+        }
         
+    }
+    
+    List<List<int>> GetRandomPositionsFrom2DArray(int width, int depth, int count)
+    {
+        List<List<int>> selectedPositions = new List<List<int>>();
+        HashSet<(int, int)> usedPositions = new HashSet<(int, int)>();
+        
+        while (selectedPositions.Count < count)
+        {
+            int x = Random.Range(0, width);
+            int y = Random.Range(0, depth);
+            
+            if (!usedPositions.Contains((x, y)))
+            {
+                usedPositions.Add((x, y));
+                selectedPositions.Add(new List<int> { x, y });
+            }
+        }
+
+        return selectedPositions;
+    }
+
+    public int GetMazeWidth()
+    {
+        return mazeWidth;
+    }
+
+    public int GetMazeDepth()
+    {
+        return mazeDepth;
+    }
+
+    public int GetGreaterEdge()
+    {
+        return mazeWidth >= mazeDepth ? mazeWidth : mazeDepth;
     }
     
     void Update()

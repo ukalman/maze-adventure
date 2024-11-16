@@ -3,15 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
+using UnityEngine.Serialization;
+
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+
     
     public Transform playerHead;
     public GameObject Player;
 
-    public GameObject firstAidText;
+    [FormerlySerializedAs("firstAidText")] public GameObject interactionText;
     
     private void Awake()
     {

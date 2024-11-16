@@ -43,6 +43,12 @@ public class WeaponAmmo : MonoBehaviour
         }
         EventManager.Instance.InvokeOnAmmoChanged();
     }
+
+    public void OnAmmoCollected(int amount)
+    {
+        extraAmmo += amount;
+        EventManager.Instance.InvokeOnAmmoChanged();
+    }
     
     
 }

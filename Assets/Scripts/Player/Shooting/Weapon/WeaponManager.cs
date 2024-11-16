@@ -109,8 +109,7 @@ public class WeaponManager : MonoBehaviour
     private void PlayGunshotSound()
     {
         int randomIndex = Random.Range(0, gunShotSounds.Length);
-        float volume = 1.0f;
-        if (weaponName.Equals("AK-47")) volume = 0.3f;
+        float volume = 0.7f;
         audioSource.PlayOneShot(gunShotSounds[randomIndex], volume);
     }
 

@@ -20,11 +20,14 @@ public class ActionStateManager : MonoBehaviour
     [HideInInspector] public Animator anim;
     public MultiAimConstraint rightHandAim;
     public TwoBoneIKConstraint leftHandIK;
+
+    public WeaponClassManager weaponClassManager;
     
     void Start()
     {
         SwitchState(Default);
         anim = GetComponent<Animator>();
+        weaponClassManager = GetComponent<WeaponClassManager>();
     }
     
     void Update()
