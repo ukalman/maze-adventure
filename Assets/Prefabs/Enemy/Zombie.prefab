@@ -2591,7 +2591,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookDistance: 10
-  fov: 180
+  fov: 140
   enemyEyes: {fileID: 2295512150679799784}
 --- !u!195 &2859120219206907155
 NavMeshAgent:

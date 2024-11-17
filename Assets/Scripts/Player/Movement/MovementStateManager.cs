@@ -66,6 +66,8 @@ public class MovementStateManager : MonoBehaviour
     private static readonly int XInput = Animator.StringToHash("xInput");
     private static readonly int ZInput = Animator.StringToHash("zInput");
 
+    public bool isCrouching;
+    
     void Start()
     {
         anim = GetComponent<Animator>();

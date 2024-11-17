@@ -1097,6 +1097,7 @@ MonoBehaviour:
   - {fileID: 4464571437711530434}
   - {fileID: 6719600416141959449}
   activeWalls: 
+  hasFirstAid: 0
 --- !u!1 &7605819855275514722
 GameObject:
   m_ObjectHideFlags: 0

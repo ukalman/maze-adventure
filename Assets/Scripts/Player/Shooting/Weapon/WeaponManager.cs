@@ -104,6 +104,7 @@ public class WeaponManager : MonoBehaviour
             Rigidbody rb = bulletGO.GetComponent<Rigidbody>();
             rb.AddForce(barrelPos.forward * bulletVelocity, ForceMode.Impulse);
         }
+        EventManager.Instance.InvokeOnPlayerFired();
     }
 
     private void PlayGunshotSound()

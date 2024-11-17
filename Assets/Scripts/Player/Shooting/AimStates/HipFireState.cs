@@ -7,6 +7,7 @@ public class HipFireState : AimBaseState
     {
         aim.anim.SetBool("Aiming", false);
         aim.currentFov = aim.hipFov;
+        aim.SetCrosshairHip();
     }
 
     public override void UpdateState(AimStateManager aim)

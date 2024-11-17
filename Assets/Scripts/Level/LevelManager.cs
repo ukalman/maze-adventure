@@ -6,6 +6,8 @@ public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance { get; private set; }
 
+    public Transform WorldObjectsParent;
+
     private GameDifficulty Difficulty;
 
     #region CameraSwitch
@@ -21,7 +23,7 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private Camera mainCam, droneCam, minimapCam;
     private void Awake()
     {
-        SetGameDifficulty(GameDifficulty.MODERATE);
+        SetGameDifficulty(GameDifficulty.EASY);
         
         if (Instance == null)
         {
@@ -72,6 +74,5 @@ public class LevelManager : MonoBehaviour
     }
     
     // use enemy spawner
-    
     
 }

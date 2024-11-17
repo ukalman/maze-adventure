@@ -8,6 +8,7 @@ public class AimState : AimBaseState
     {
         aim.anim.SetBool("Aiming", true);
         aim.currentFov = aim.aimFOV;
+        aim.SetCrosshairAim();
     }
 
     public override void UpdateState(AimStateManager aim)

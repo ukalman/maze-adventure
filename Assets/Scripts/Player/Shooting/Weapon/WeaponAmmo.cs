@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class WeaponAmmo : MonoBehaviour
 {
+    [SerializeField] private AmmoType ammoType;
+    
     public int clipSize;
     public int extraAmmo;
     public int currentAmmo;
@@ -39,6 +41,7 @@ public class WeaponAmmo : MonoBehaviour
             {
                 currentAmmo += extraAmmo;
                 extraAmmo = 0;
+                EventManager.Instance.InvokeOnExtraAmmoDepleted(ammoType);
             }
         }
         EventManager.Instance.InvokeOnAmmoChanged();

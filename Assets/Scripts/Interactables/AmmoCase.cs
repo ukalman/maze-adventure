@@ -13,13 +13,12 @@ public class AmmoCase : MonoBehaviour
     private bool isPlayerIn;
     private bool canCollect;
     
-    // Start is called before the first frame update
     void Start()
     {
         interactionText = GameManager.Instance.interactionText;
+        ammoAmount = Random.Range(25, 50);
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         if (isPlayerIn && canCollect)

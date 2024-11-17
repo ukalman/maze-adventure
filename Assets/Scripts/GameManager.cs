@@ -9,10 +9,10 @@ using UnityEngine.Serialization;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-
     
     public Transform playerHead;
     public GameObject Player;
+    public MovementStateManager PlayerMovement;
 
     [FormerlySerializedAs("firstAidText")] public GameObject interactionText;
     
@@ -35,7 +35,8 @@ public class GameManager : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        
+        PlayerMovement = Player.GetComponent<MovementStateManager>();
+
     }
 
     

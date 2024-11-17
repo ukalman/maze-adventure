@@ -584,6 +584,7 @@ MonoBehaviour:
   sprintThreshold: 0.15
   currentSprintTime: 0
   anim: {fileID: 0}
+  isCrouching: 0
 --- !u!114 &2913876046368207133
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -612,6 +613,9 @@ MonoBehaviour:
     m_Bits: 577
   crouchCamHeight: 0.6
   shouldSwapSpeed: 10
+  crosshair: {fileID: 0}
+  whiteHip: {fileID: 21300048, guid: db63fa1c2adceb141974024b30ffa6db, type: 3}
+  knob: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!114 &6598397138829846535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -908,8 +912,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6b1db47d770ace44bc65bad03cfd393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ammoType: 1
   clipSize: 30
-  extraAmmo: 120
+  extraAmmo: 30
   currentAmmo: 0
   magInSound: {fileID: 8300000, guid: 381f4dcc205b5c2469e45995fbb80819, type: 3}
   magOutSound: {fileID: 8300000, guid: 83c40561303dacb4db476eaafd695322, type: 3}
@@ -12466,6 +12471,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6b1db47d770ace44bc65bad03cfd393, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ammoType: 0
   clipSize: 30
   extraAmmo: 0
   currentAmmo: 0

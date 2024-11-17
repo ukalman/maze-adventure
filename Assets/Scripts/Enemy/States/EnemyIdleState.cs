@@ -71,7 +71,7 @@ public class EnemyIdleState : EnemyBaseState
         {
             StopWandering(controller);
             // 50% chance to scream or run towards the player
-            if (Random.Range(1, 100) < 90 && canScream) controller.SwitchState(controller.Scream);
+            if (Random.Range(1, 100) < 50 && canScream) controller.SwitchState(controller.Scream);
             else controller.SwitchState(controller.Run);
             return;
         }

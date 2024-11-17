@@ -5,6 +5,7 @@ public class CrouchState : MovementBaseState
 {
     public override void EnterState(MovementStateManager movement)
     {
+        movement.isCrouching = true;
         movement.anim.SetBool("Crouching",true);
     }
 
@@ -26,6 +27,7 @@ public class CrouchState : MovementBaseState
     
     private void ExitState(MovementStateManager movement, MovementBaseState stateToSwitch)
     {
+        movement.isCrouching = false;
         movement.anim.SetBool("Crouching", false);
         movement.SwitchState(stateToSwitch);
     }

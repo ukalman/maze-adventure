@@ -33,6 +33,14 @@ public class EventManager : MonoBehaviour
     public event Action OnMazeGenerated;
 
     public event Action<int> OnEnemyDied;
+
+    public event Action<AmmoType> OnExtraAmmoDepleted;
+
+    public event Action OnRequirementsBeforeNavMeshSpawned;
+
+    public event Action OnNavMeshBaked;
+
+    public event Action OnPlayerFired;
     
     public void InvokeOnFirstAidUsed()
     {
@@ -67,6 +75,26 @@ public class EventManager : MonoBehaviour
     public void InvokeOnEnemyDied(int groupID)
     {
         OnEnemyDied?.Invoke(groupID);
+    }
+
+    public void InvokeOnExtraAmmoDepleted(AmmoType type)
+    {
+        OnExtraAmmoDepleted?.Invoke(type);
+    }
+
+    public void InvokeOnRequirementsBeforeNavMeshSpawned()
+    {
+        OnRequirementsBeforeNavMeshSpawned?.Invoke();
+    }
+
+    public void InvokeOnNavMeshBaked()
+    {
+        OnNavMeshBaked?.Invoke();
+    }
+
+    public void InvokeOnPlayerFired()
+    {
+        OnPlayerFired?.Invoke();
     }
     
 }

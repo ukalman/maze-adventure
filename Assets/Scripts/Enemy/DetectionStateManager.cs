@@ -5,14 +5,19 @@ using UnityEngine;
 
 public class DetectionStateManager : MonoBehaviour
 {
-    [SerializeField] private float lookDistance = 15.0f, fov = 120.0f;
+    [SerializeField] private float lookDistance = 20.0f, fov = 120.0f;
     [SerializeField] private Transform enemyEyes;
     private Transform playerHead;
     private PlayerHealth playerHealth;
     
     private Transform originalEnemyEyes;
     private EnemyController enemyController;
-    
+
+    private float playerSeenTimer;// Timer to track how long the player has been "seen"
+    private const float minChaseDuration = 5.0f;
+    private float hearingDistance = 15.0f;
+    private bool playerHeardRecently; 
+    private float playerHeardDuration = 1.0f; // Duration to consider the player "heard"
     
     // Start is called before the first frame update
     void Start()
@@ -20,6 +25,12 @@ public class DetectionStateManager : MonoBehaviour
         playerHead = GameManager.Instance.playerHead;
         playerHealth = GameManager.Instance.Player.GetComponent<PlayerHealth>();
         enemyController = GetComponent<EnemyController>();
+        EventManager.Instance.OnPlayerFired += OnPlayerFired;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnPlayerFired -= OnPlayerFired;
     }
 
     // Update is called once per frame
@@ -30,19 +41,44 @@ public class DetectionStateManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (PlayerSeen())
+        if (PlayerSeen() || playerHeardRecently)
         {
+            // Reset the timer because the player is seen
+            //playerSeenTimer = minChaseDuration;
+            playerSeenTimer = Mathf.Max(playerSeenTimer, minChaseDuration);
+
+            // Update enemy distance and state
             enemyController.distToPlayer = Vector3.Distance(transform.position, playerHead.position);
             enemyController.playerSeen = true;
-            //Debug.Log("Player is seen: ");
         }
         else
         {
-            enemyController.playerSeen = false;
-            //Debug.Log("Where are you... ");
+            // Decrease the timer
+            playerSeenTimer -= Time.fixedDeltaTime;
+
+            // If the timer is still active, keep chasing
+            if (playerSeenTimer > 0)
+            {
+                // Update enemy distance to last known player position
+                enemyController.distToPlayer = Vector3.Distance(transform.position, playerHead.position);
+                enemyController.playerSeen = true;
+            }
+            else
+            {
+                // Timer expired, stop chasing
+                enemyController.playerSeen = false;
+            }
         }
         
-        // player'ı önceden görmüşse ama şimdi görmüyorsa birkaç saniye halen görmesini, veya son gördüğü yeri kaydetmesini sağla
+        if (playerHeardRecently)
+        {
+            playerHeardDuration -= Time.fixedDeltaTime;
+            if (playerHeardDuration <= 0)
+            {
+                playerHeardRecently = false; 
+            }
+        }
+        
     }
 
     public bool PlayerSeen()
@@ -61,8 +97,7 @@ public class DetectionStateManager : MonoBehaviour
         float angleToPlayer = Vector3.Angle(enemyEyes.parent.forward, dirToPlayer);
 
         
-
-        if (enemyController.CurrentState != enemyController.Attack)
+        if (enemyController.CurrentState != enemyController.Attack && GameManager.Instance.PlayerMovement.isCrouching)
         {
             if (angleToPlayer > fov * 0.5f)
             {
@@ -90,4 +125,23 @@ public class DetectionStateManager : MonoBehaviour
         return false;
 
     }
+    
+    private void OnPlayerFired()
+    {
+        if (Vector3.Distance(transform.position, playerHead.position) <= hearingDistance)
+        {
+            Debug.Log("Player heard by enemy!");
+            playerHeardRecently = true; 
+            playerHeardDuration = 1.0f; 
+            playerSeenTimer = Mathf.Max(playerSeenTimer, minChaseDuration); 
+            enemyController.playerSeen = true; // Ensure the enemy knows the player is detected
+            
+        }
+    }
+    
+    public bool PlayerHeard()
+    {
+        return playerSeenTimer > 0; // Continue chasing if the player was recently heard
+    }
+    
 }

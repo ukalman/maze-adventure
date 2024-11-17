@@ -8,10 +8,17 @@ using Random = UnityEngine.Random;
 
 public class MazeGenerator : MonoBehaviour
 {
+    /* If difficulty:
+     * EASY -> 10,10
+     * MODERATE -> 15,15
+     * HARD -> 22,22
+     */
+    
     [SerializeField] private MazeCell mazeCellPrefab;
 
     [SerializeField] private int mazeWidth, mazeDepth;
-
+    [SerializeField] private float scaleX, scaleY, scaleZ;
+    
     [SerializeField] private int seed;
 
     [SerializeField] private bool useSeed;
@@ -20,10 +27,15 @@ public class MazeGenerator : MonoBehaviour
 
     private List<List<int>> firstAidPositions;
     [SerializeField] private int firstAidCount = 5;
-
+    
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnRequirementsBeforeNavMeshSpawned -= OnRequirementsBeforeNavMeshSpawned;
+    }
     
     IEnumerator Start()
     {
+        EventManager.Instance.OnRequirementsBeforeNavMeshSpawned += OnRequirementsBeforeNavMeshSpawned;
         if (useSeed)
         {
             Random.InitState(seed);
@@ -33,6 +45,22 @@ public class MazeGenerator : MonoBehaviour
             int randomSeed = Random.Range(1, 1000000);
             Random.InitState(randomSeed);
             Debug.Log(randomSeed);
+        }
+
+        switch (LevelManager.Instance.GetGameDifficulty())
+        {
+            case GameDifficulty.EASY:
+                mazeWidth = 10;
+                mazeDepth = 10;
+                break;
+            case GameDifficulty.MODERATE:
+                mazeWidth = 15;
+                mazeDepth = 15;
+                break;
+            case GameDifficulty.HARD:
+                mazeWidth = 22;
+                mazeDepth = 22;
+                break;
         }
         
         mazeGrid = new MazeCell[mazeWidth, mazeDepth];
@@ -51,16 +79,23 @@ public class MazeGenerator : MonoBehaviour
         firstAidPositions = GetRandomPositionsFrom2DArray(mazeWidth, mazeDepth, firstAidCount);
         ActivateFirstAidKits();
         
-        GetComponent<NavMeshSurface>().BuildNavMesh();
+        //GetComponent<NavMeshSurface>().BuildNavMesh();
         EventManager.Instance.InvokeOnMazeGenerated();
     }
 
+    private void OnRequirementsBeforeNavMeshSpawned()
+    {
+        GetComponent<NavMeshSurface>().BuildNavMesh();
+        //EventManager.Instance.InvokeOnMazeGenerated();
+        EventManager.Instance.InvokeOnNavMeshBaked();
+    }
+    
     private IEnumerator GenerateMaze(MazeCell previousCell, MazeCell currentCell)
     {
         currentCell.Visit();
         ClearWalls(previousCell, currentCell);
 
-        yield return new WaitForSeconds(0.05f);
+        //yield return new WaitForSeconds(0.05f);
         MazeCell nextCell;
 
         do
@@ -203,6 +238,11 @@ public class MazeGenerator : MonoBehaviour
         return selectedPositions;
     }
 
+    public MazeCell[,] GetMazeGrid()
+    {
+        return mazeGrid;
+    }
+    
     public int GetMazeWidth()
     {
         return mazeWidth;
@@ -213,14 +253,30 @@ public class MazeGenerator : MonoBehaviour
         return mazeDepth;
     }
 
+    public float GetScaleX()
+    {
+        return scaleX;
+    }
+    
+    public float GetScaleY()
+    {
+        return scaleY;
+    }
+    
+    public float GetScaleZ()
+    {
+        return scaleZ;
+    }
+
     public int GetGreaterEdge()
     {
         return mazeWidth >= mazeDepth ? mazeWidth : mazeDepth;
     }
 
-    public MazeCell GetTopRightCell()
+    public Vector2Int GetTopRightCellCoordinates()
     {
-        return mazeGrid[0, mazeDepth - 1];
+        return new Vector2Int(0, mazeDepth - 1);
+        //return mazeGrid[0, mazeDepth - 1];
     }
     
     public MazeCell GetBottomLeftCell()

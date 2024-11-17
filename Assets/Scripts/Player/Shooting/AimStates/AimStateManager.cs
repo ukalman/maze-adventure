@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using UnityEngine.Animations.Rigging;
+using UnityEngine.UI;
 
 public class AimStateManager : MonoBehaviour
 {
@@ -38,6 +39,14 @@ public class AimStateManager : MonoBehaviour
     [SerializeField] private float shouldSwapSpeed = 10.0f;
     private MovementStateManager moving;
 
+
+    [SerializeField] private Image crosshair;
+    [SerializeField] private Sprite whiteHip;
+    [SerializeField] private Sprite knob;
+    private float hipWidth = 43.7006f;
+    private float hipHeight = 42.7765f;
+    private float knobWidth = 6.0f, knobHeight = 6.0f;
+    
     private void Awake()
     {
         aimPos = new GameObject().transform;
@@ -112,6 +121,18 @@ public class AimStateManager : MonoBehaviour
         Vector3 newFollowPosition = new Vector3(xFollowPos, yFollowPos,camFollowPos.localPosition.z);
         camFollowPos.localPosition =
             Vector3.Lerp(camFollowPos.localPosition, newFollowPosition, shouldSwapSpeed * Time.deltaTime);
+    }
+
+    public void SetCrosshairHip()
+    {
+        crosshair.sprite = whiteHip;
+        crosshair.rectTransform.sizeDelta = new Vector2(hipWidth, hipHeight);
+    }
+
+    public void SetCrosshairAim()
+    {
+        crosshair.sprite = knob;
+        crosshair.rectTransform.sizeDelta = new Vector2(knobWidth, knobHeight);
     }
     
 }
