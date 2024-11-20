@@ -29,7 +29,7 @@ public class MovementStateManager : MonoBehaviour
     #region Gravity
 
     [SerializeField] private float gravity = -9.81f;
-    [SerializeField] private float jumpForce = 10.0f;
+    [SerializeField] private float jumpForce = 5.0f;
     [HideInInspector] public bool jumped;
     private Vector3 velocity;
 
@@ -67,6 +67,9 @@ public class MovementStateManager : MonoBehaviour
     private static readonly int ZInput = Animator.StringToHash("zInput");
 
     public bool isCrouching;
+    public bool isFlashlightOn;
+    
+    private bool isPaused;
     
     void Start()
     {
@@ -75,10 +78,33 @@ public class MovementStateManager : MonoBehaviour
         currentSprintTime = maxSprintTime;
         sprintbarUI.SetMaxValue(maxSprintTime); 
         SwitchState(Idle);
+        
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
+        
+        EventManager.Instance.OnFlashlightTurnedOn += OnFlashlightTurnedOn;
+        EventManager.Instance.OnFlashlightTurnedOff += OnFlashlightTurnedOff;
     }
-    
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
+        
+        EventManager.Instance.OnFlashlightTurnedOn -= OnFlashlightTurnedOn;
+        EventManager.Instance.OnFlashlightTurnedOff -= OnFlashlightTurnedOff;
+    }
+
     void Update()
     {
+        if (!LevelManager.Instance.HasLevelStarted) return;
+        
+        if (isPaused) return;
+        
         Move();
         Gravity();
         Falling();
@@ -141,30 +167,59 @@ public class MovementStateManager : MonoBehaviour
     {
         while (currentSprintTime > 0)
         {
+            // Pause handling
+            while (isPaused)
+            {
+                yield return null; // Wait until unpaused
+            }
+
+            // Decrease sprint time
             currentSprintTime -= sprintDepletionRate * Time.deltaTime;
             currentSprintTime = Mathf.Max(currentSprintTime, 0);
-            sprintbarUI.SetValue(currentSprintTime); // Update sprint bar
-            yield return null;
+
+            // Update sprint bar UI
+            sprintbarUI.SetValue(currentSprintTime);
+
+            yield return null; // Wait for the next frame
         }
 
         StopSprinting(); // Start refill when sprint meter is depleted
     }
 
+
     private IEnumerator HandleSprintRefill()
     {
-        yield return new WaitForSeconds(refillDelay); // Wait before starting refill
-        
+        // Handle refill delay with pause checking
+        float elapsedDelay = 0f;
+        while (elapsedDelay < refillDelay)
+        {
+            // Pause handling
+            while (isPaused)
+            {
+                yield return null; // Wait until unpaused
+            }
+
+            elapsedDelay += Time.deltaTime;
+            yield return null;
+        }
+
+        // Refill sprint bar over time
         while (currentSprintTime < maxSprintTime)
         {
+            // Pause handling
+            while (isPaused)
+            {
+                yield return null; // Wait until unpaused
+            }
+
             currentSprintTime += sprintRefillRate * Time.deltaTime;
             currentSprintTime = Mathf.Min(currentSprintTime, maxSprintTime);
-            sprintbarUI.SetValue(currentSprintTime); // Update sprint bar
+            sprintbarUI.SetValue(currentSprintTime); // Update sprint bar UI
             yield return null;
         }
 
         sprintRefillCoroutine = null; // Reset coroutine reference when done
     }
-    
     
     public bool IsGrounded()
     {
@@ -197,15 +252,15 @@ public class MovementStateManager : MonoBehaviour
     {
         if (CurrentState == Walk)
         {
-            AudioManager.Instance.OnFirstFootstep(0.2f);
+            AudioManager.Instance.OnFirstFootstep(0.1f);
         }
         if (CurrentState == Run)
         {
-            AudioManager.Instance.OnFirstFootstep(0.3f);
+            AudioManager.Instance.OnFirstFootstep(0.2f);
         }
         if (CurrentState == Crouch)
         {
-            AudioManager.Instance.OnFirstFootstep(0.05f);
+            AudioManager.Instance.OnFirstFootstep(0.01f);
         }
     }
 
@@ -224,6 +279,42 @@ public class MovementStateManager : MonoBehaviour
         {
             AudioManager.Instance.OnSecondFootstep(0.05f);
         }
+    }
+    
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+        anim.speed = 0;
+        LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+        anim.speed = 1;
+        LevelManager.Instance.levelUIManager.UnregisterTrackedObject(transform);
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+        anim.speed = 0;
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
+        anim.speed = 1;
+    }
+
+    private void OnFlashlightTurnedOn()
+    {
+        isFlashlightOn = true;
+    }
+
+    private void OnFlashlightTurnedOff()
+    {
+        isFlashlightOn = false;
     }
 
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,9 +10,22 @@ public class PlayerHealthbar : MonoBehaviour
     public Image fill;
     private Coroutine currentCoroutine; // Track current coroutine to avoid overlap
 
+    private bool isPaused;
+    
     private void Start()
     {
-        //slider = GetComponent<Slider>();
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
     }
 
     public void SetMaxHealth(float health)
@@ -41,6 +55,11 @@ public class PlayerHealthbar : MonoBehaviour
 
         while (elapsed < duration)
         {
+            while (isPaused)
+            {
+                yield return null; // Wait during pause
+            }
+            
             elapsed += Time.deltaTime;
             slider.value = Mathf.Lerp(initialHealth, targetHealth, elapsed / duration);
             fill.color = gradient.Evaluate(slider.normalizedValue);
@@ -51,4 +70,25 @@ public class PlayerHealthbar : MonoBehaviour
         fill.color = gradient.Evaluate(slider.normalizedValue);
         currentCoroutine = null; // Reset coroutine tracker
     }
+    
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
+    }
+    
 }

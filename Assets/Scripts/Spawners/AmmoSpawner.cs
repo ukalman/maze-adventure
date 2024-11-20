@@ -236,7 +236,7 @@ public class AmmoSpawner : MonoBehaviour
             //spawnPoint = mazeCell.transform.position;
             
         }
-        else if (cell == 2) // bottom left cell
+        if (cell == 2) // bottom left cell
         {
             var mazeCell = Extensions.GetRandomElementWithinDistance(mazeGenerator.GetMazeGrid(), mazeGenerator.GetMazeWidth()-1,
                 0, distFromSpawnPoint);
@@ -244,19 +244,15 @@ public class AmmoSpawner : MonoBehaviour
             //spawnPoint = mazeCell.transform.position;
             
         }
-        else if (cell == 3) // bottom right cell
+         if (cell == 3) // bottom right cell
         {
             var mazeCell = Extensions.GetRandomElementWithinDistance(mazeGenerator.GetMazeGrid(), mazeGenerator.GetMazeWidth()-1,
                 mazeGenerator.GetMazeDepth() -1, distFromSpawnPoint);
             return mazeCell.transform;
             //spawnPoint = mazeCell.transform.position;
         }
-        else
-        {
-            Debug.Log("Cell value: " + cell);
-            return null;
-        }
 
+        return null;
     }
     
 }

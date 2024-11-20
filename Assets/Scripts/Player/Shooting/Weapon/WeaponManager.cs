@@ -39,6 +39,10 @@ public class WeaponManager : MonoBehaviour
 
     public Transform leftHandTarget, leftHandHint;
     private WeaponClassManager weaponClass;
+
+    private bool isPaused;
+
+    [SerializeField] private GameObject flashLight;
     
     void Start()
     {
@@ -50,6 +54,22 @@ public class WeaponManager : MonoBehaviour
         muzzleFlashLight.intensity = 0.0f;
         muzzleFlashParticles = GetComponentInChildren<ParticleSystem>();
         fireRateTimer = fireRate;
+        
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
+        
+        muzzleFlashParticles.Play();
+        muzzleFlashParticles.Stop();
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
     }
 
     private void OnEnable()
@@ -67,7 +87,13 @@ public class WeaponManager : MonoBehaviour
 
     void Update()
     {
-        if(ShouldFire()) Fire();
+        if (!LevelManager.Instance.HasLevelStarted) return;
+        
+        if (isPaused) return;
+
+        CheckFlashlight();
+        
+        if (ShouldFire()) Fire();
         muzzleFlashLight.intensity = Mathf.Lerp(muzzleFlashLight.intensity, 0.0f, lightReturnSpeed * Time.deltaTime);
     }
 
@@ -118,6 +144,47 @@ public class WeaponManager : MonoBehaviour
     {
         muzzleFlashParticles.Play();
         muzzleFlashLight.intensity = lightIntensity;
+    }
+    
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+        audioSource.Pause();
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+        audioSource.UnPause();
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+        audioSource.Pause();
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
+        audioSource.UnPause();
+    }
+
+    private void CheckFlashlight()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            if (flashLight.activeSelf)
+            {
+                EventManager.Instance.InvokeOnFlashlightTurnedOff();
+                flashLight.SetActive(false);
+            }
+            else
+            {
+                EventManager.Instance.InvokeOnFlashlightTurnedOn();
+                flashLight.SetActive(true);
+            }
+        }
     }
     
 }

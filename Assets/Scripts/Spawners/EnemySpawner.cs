@@ -16,15 +16,15 @@ public class EnemySpawner : MonoBehaviour
      * HARD -> 12 zombie groups instantiated at first, 25 dist from spawn point
      */
     
-    
-    private MazeGenerator mazeGenerator; 
-    
-    private int totalZombieCount = 0;
+    private MazeGenerator mazeGenerator;
+
+    private int maxZombieCount;
+    private int currentZombieCount = 0;
 
     [SerializeField] private GameObject zombieGroupPrefab_3;
     [SerializeField] private GameObject zombieGroupPrefab_2;
 
-    private List<GameObject> zombieGroups = new List<GameObject>();
+    private Dictionary<GameObject,int> zombieGroups = new Dictionary<GameObject, int>();
     private int zombieGroupCount;
     private int distFromSpawnPoint;
     
@@ -33,20 +33,25 @@ public class EnemySpawner : MonoBehaviour
         mazeGenerator = GetComponent<MazeGenerator>();
         EventManager.Instance.OnNavMeshBaked += OnNavMeshBaked;
         //EventManager.Instance.OnMazeGenerated += OnMazeGenerated;
-        EventManager.Instance.OnEnemyDied += OnEnemyDied;
+        EventManager.Instance.OnEnemyKilled += OnEnemyKilled;
+        EventManager.Instance.OnEnemyDestroy += OnEnemyDestroy;
+        EventManager.Instance.OnNexusCoreObtained += OnNexusCoreObtained;
 
         switch (LevelManager.Instance.GetGameDifficulty())
         {
             case GameDifficulty.EASY:
-                zombieGroupCount = 5;
+                maxZombieCount = 9;
+                zombieGroupCount = 3;
                 distFromSpawnPoint = 5;
                 break;
             case GameDifficulty.MODERATE:
-                zombieGroupCount = 8;
+                maxZombieCount = 18;
+                zombieGroupCount = 6;
                 distFromSpawnPoint = 10;
                 break;
             case GameDifficulty.HARD:
-                zombieGroupCount = 12;
+                maxZombieCount = 27;
+                zombieGroupCount = 9;
                 distFromSpawnPoint = 18;
                 break;
             case GameDifficulty.None:
@@ -58,8 +63,10 @@ public class EnemySpawner : MonoBehaviour
     private void OnDestroy()
     {
         EventManager.Instance.OnNavMeshBaked -= OnNavMeshBaked;
+        EventManager.Instance.OnEnemyKilled -= OnEnemyKilled;
         //EventManager.Instance.OnMazeGenerated -= OnMazeGenerated;
-        EventManager.Instance.OnEnemyDied -= OnEnemyDied;
+        EventManager.Instance.OnEnemyDestroy -= OnEnemyDestroy;
+        EventManager.Instance.OnNexusCoreObtained -= OnNexusCoreObtained;
     }
 
     private void OnNavMeshBaked()
@@ -69,12 +76,32 @@ public class EnemySpawner : MonoBehaviour
             SpawnZombieGroup(GetRandomSpawnPoint());
         }
         
+        EventManager.Instance.InvokeOnLevelInstantiated();
     }
 
-    private void OnEnemyDied(int id)
+    private void OnEnemyKilled()
     {
-        
+        currentZombieCount--;
     }
+    
+    private void OnEnemyDestroy(GameObject zombieGroup)
+    {
+        if (zombieGroups.ContainsKey(zombieGroup))
+        {
+            zombieGroups[zombieGroup]--;
+            
+            if (zombieGroups[zombieGroup] <= 0)
+            {
+                zombieGroups.Remove(zombieGroup);
+                Destroy(zombieGroup);
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"Zombie group not found in dictionary: {zombieGroup.name}");
+        }
+    }
+
     
     
     private void SpawnZombieGroup(Vector3 spawnPoint)
@@ -83,13 +110,13 @@ public class EnemySpawner : MonoBehaviour
         if (Random.Range(1, 6) <= 2)
         {
             // 3
-            zombieGroups.Add(Instantiate(zombieGroupPrefab_3, spawnPoint, Quaternion.identity, LevelManager.Instance.WorldObjectsParent));
-            totalZombieCount += 3;
+            zombieGroups.Add(Instantiate(zombieGroupPrefab_3, spawnPoint, Quaternion.identity, LevelManager.Instance.WorldObjectsParent), 3);
+            currentZombieCount += 3;
         }
         else
         {
-            zombieGroups.Add(Instantiate(zombieGroupPrefab_2, spawnPoint, Quaternion.identity, LevelManager.Instance.WorldObjectsParent));
-            totalZombieCount += 2;
+            zombieGroups.Add(Instantiate(zombieGroupPrefab_2, spawnPoint, Quaternion.identity, LevelManager.Instance.WorldObjectsParent), 2);
+            currentZombieCount += 2;
         }
     }
 
@@ -127,6 +154,31 @@ public class EnemySpawner : MonoBehaviour
         return spawnPoint;
 
     }
-    
-    
+
+    private void OnNexusCoreObtained()
+    {
+        while (currentZombieCount < maxZombieCount)
+        {
+            int groupSize;
+            
+            if (maxZombieCount - currentZombieCount >= 3)
+            {
+                groupSize = 3; 
+            }
+            else
+            {
+                groupSize = 2;
+            }
+            
+            SpawnZombieGroupsOnNexusCoreEvent(groupSize);
+            currentZombieCount += groupSize;
+        }
+    }
+
+    private void SpawnZombieGroupsOnNexusCoreEvent(int groupSize)
+    {
+        GameObject zombieGroupPrefab = groupSize == 3 ? zombieGroupPrefab_3 : zombieGroupPrefab_2;
+        zombieGroups.Add(Instantiate(zombieGroupPrefab, GetRandomSpawnPoint(), Quaternion.identity, LevelManager.Instance.WorldObjectsParent), groupSize);
+    }
+
 }

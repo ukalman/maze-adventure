@@ -9,9 +9,49 @@ public class Bullet : MonoBehaviour
     [HideInInspector] public WeaponManager weapon;
     [HideInInspector] public Vector3 dir;
     
+    private Rigidbody rb;
+    private bool isPaused;
+    private Vector3 savedVelocity;
+    private Vector3 savedAngularVelocity;
+    private float remainingTimeToDestroy;
+    
     void Start()
     {
-       Destroy(gameObject, timeToDestroy); 
+        rb = GetComponent<Rigidbody>();
+        remainingTimeToDestroy = timeToDestroy;
+        
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
+        
+        StartCoroutine(DestroyAfterDelay());
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
+    }
+
+
+    private IEnumerator DestroyAfterDelay()
+    {
+        while (remainingTimeToDestroy > 0)
+        {
+            // Pause handling
+            while (isPaused)
+            {
+                yield return null; // Wait while paused
+            }
+
+            remainingTimeToDestroy -= Time.deltaTime;
+            yield return null;
+        }
+
+        Destroy(gameObject);
     }
     
     private void OnCollisionEnter(Collision other)
@@ -57,6 +97,56 @@ public class Bullet : MonoBehaviour
             
             Destroy(gameObject);
         }
+    }
+    
+    private void PauseBullet()
+    {
+        if (rb != null)
+        {
+            savedVelocity = rb.velocity;
+            savedAngularVelocity = rb.angularVelocity;
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.isKinematic = true; // Disable physics simulation
+        }
+
+        isPaused = true;
+    }
+
+    private void ResumeBullet()
+    {
+        if (rb != null)
+        {
+            rb.isKinematic = false; // Re-enable physics simulation
+            rb.velocity = savedVelocity;
+            rb.angularVelocity = savedAngularVelocity;
+        }
+
+        isPaused = false;
+    }
+    
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+        PauseBullet();
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+        ResumeBullet();
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+        PauseBullet();
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
+        ResumeBullet();
     }
 
 

@@ -18,6 +18,10 @@ public class EnemyIdleState : EnemyBaseState
     
     public override void EnterState(EnemyController controller)
     {
+        if (LevelManager.Instance.activeCombatEnemies.Contains(controller))
+        {
+            LevelManager.Instance.activeCombatEnemies.Remove(controller);
+        }
         controller.State = "Idle";
         if (controller.enemyAgent != null)
         {
@@ -41,7 +45,7 @@ public class EnemyIdleState : EnemyBaseState
         idleTimer = 0.0f;
         soundIdleTimer = 0.0f;
         wanderInterval = Random.Range(5.0f, 10.0f); 
-        soundPlayInterval = Random.Range(4.0f, 15.0f);
+        soundPlayInterval = Random.Range(10.0f, 15.0f);
         isWandering = false;
 
         ranTimer = 0.0f;
@@ -71,7 +75,7 @@ public class EnemyIdleState : EnemyBaseState
         {
             StopWandering(controller);
             // 50% chance to scream or run towards the player
-            if (Random.Range(1, 100) < 50 && canScream) controller.SwitchState(controller.Scream);
+            if (Random.Range(0, 100) < 50 && canScream) controller.SwitchState(controller.Scream);
             else controller.SwitchState(controller.Run);
             return;
         }
@@ -88,9 +92,8 @@ public class EnemyIdleState : EnemyBaseState
         // Sound logic
         if (soundIdleTimer >= soundPlayInterval)
         {
-            Debug.Log("Oh yes.");
             controller.StartCoroutine(controller.enemyAudio.PlaySound(EnemyAudioState.Idle));
-            soundPlayInterval = Random.Range(3.0f, 8.0f); 
+            soundPlayInterval = Random.Range(10.0f, 20.0f); 
             soundIdleTimer = 0.0f;
         }
 

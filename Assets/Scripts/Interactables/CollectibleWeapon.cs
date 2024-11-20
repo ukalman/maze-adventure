@@ -13,14 +13,36 @@ public class CollectibleWeapon : MonoBehaviour
 
     private bool isPlayerIn;
     private bool canCollect;
-    
+
+    private bool isPaused;
+
+    private void Awake()
+    {
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
+    }
+
     void Start()
     {
         interactionText = GameManager.Instance.interactionText;
     }
-    
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
+    }
+
     void Update()
     {
+        if (!LevelManager.Instance.HasLevelStarted) return;
+        
+        if (isPaused) return;
+        
         if (isPlayerIn && canCollect)
         {
             if (Input.GetKeyDown(KeyCode.E))
@@ -61,5 +83,27 @@ public class CollectibleWeapon : MonoBehaviour
                 isPlayerIn = false;
             }
         }
+    }
+    
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+        LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+        LevelManager.Instance.levelUIManager.UnregisterTrackedObject(transform);
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
     }
 }

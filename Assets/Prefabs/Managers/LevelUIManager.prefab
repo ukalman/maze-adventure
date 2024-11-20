@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8622459549354147289
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6225713677138700678}
+  - component: {fileID: 1853529442846436014}
+  m_Layer: 0
+  m_Name: LevelUIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6225713677138700678
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8622459549354147289}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1853529442846436014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8622459549354147289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7ddf8016f9d4eada4245105aef22d05, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamCanvas: {fileID: 0}
+  droneCamObjects: {fileID: 0}
+  droneCamCanvas: {fileID: 0}
+  canvasRectTransform: {fileID: 0}
+  objectiveInfoText: {fileID: 0}
+  scanningText: {fileID: 0}
+  playerIconPrefab: {fileID: 2337882950308275620, guid: 49e7917ed8472344b9f13280d6df8044,
+    type: 3}
+  zombieIconPrefab: {fileID: 2779115762889923712, guid: 37c3fa8ea4d575b4da325bf3fd2ffaa4,
+    type: 3}
+  ak47IconPrefab: {fileID: 6647925605434071882, guid: 0e93ca8e3aa4a1d409e36509f031cbe0,
+    type: 3}
+  ammoCaseIconPrefab: {fileID: 2180515662999166019, guid: 1e27bcd74df82da4ba3a74301faff2d1,
+    type: 3}
+  firstAidIconPrefab: {fileID: 6114665074963829958, guid: 4b39ee7feb0bb5641aea93fdcf548d16,
+    type: 3}
+  circuitBreakerIconPrefab: {fileID: 6647925605434071882, guid: 5c47c025cd821af4eb82b366727f879e,
+    type: 3}
+  nexusCoreIconPrefab: {fileID: 6647925605434071882, guid: 910b2501818dcef42849f1c2e1f77ea8,
+    type: 3}
+  entranceIconPrefab: {fileID: 6647925605434071882, guid: 932886ca546d733419743fa5e214d221,
+    type: 3}
+  exitIconPrefab: {fileID: 6647925605434071882, guid: de6f77f3e2c047247a4c66209edd029c,
+    type: 3}
+  droneCam: {fileID: 0}
+  timerText: {fileID: 0}
+  startTimeInMinutes: 0

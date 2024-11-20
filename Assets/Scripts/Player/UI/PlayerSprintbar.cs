@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,14 +9,22 @@ public class PlayerSprintbar : MonoBehaviour
     public Image fill;
     private Coroutine currentCoroutine; // Track current coroutine to avoid overlap
 
+    private bool isPaused;
     
-    private void Awake()
-    {
-        slider = GetComponent<Slider>();
-    }
     private void Start()
     {
-        //slider = GetComponent<Slider>();
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
     }
 
     public void SetMaxValue(float value)
@@ -37,10 +46,10 @@ public class PlayerSprintbar : MonoBehaviour
         }
 
         // Start a new coroutine for smooth transition
-        currentCoroutine = StartCoroutine(SmoothHealthTransition(value));
+        currentCoroutine = StartCoroutine(SmoothSprintRefillTransition(value));
     }
 
-    private IEnumerator SmoothHealthTransition(float targetValue)
+    private IEnumerator SmoothSprintRefillTransition(float targetValue)
     {
         float initialHealth = slider.value;
         float duration = 0.5f; 
@@ -48,6 +57,8 @@ public class PlayerSprintbar : MonoBehaviour
 
         while (elapsed < duration)
         {
+            while (isPaused) yield return null;
+            
             elapsed += Time.deltaTime;
             slider.value = Mathf.Lerp(initialHealth, targetValue, elapsed / duration);
             yield return null;
@@ -55,5 +66,25 @@ public class PlayerSprintbar : MonoBehaviour
         
         slider.value = targetValue;
         currentCoroutine = null; 
+    }
+    
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
     }
 }

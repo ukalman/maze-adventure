@@ -31,6 +31,8 @@ public class EnemyAudio : MonoBehaviour
     [Header("Attack SFX")] [SerializeField] private AudioClip[] attackSFX;
     [Header("Death SFX")] [SerializeField] private AudioClip[] deathSFX;
 
+    private bool isPaused;
+    
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -38,10 +40,27 @@ public class EnemyAudio : MonoBehaviour
         controller = GetComponent<EnemyController>();
         lowPassFilter.cutoffFrequency = clearFrequency;
         playerHead = GameManager.Instance.playerHead;
+
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
     }
 
     private void Update()
     {
+        if (!LevelManager.Instance.HasLevelStarted) return;
+        
+        if(isPaused) return;
+        
         if (controller.CurrentState != controller.Death) CheckOcclusion();
     }
 
@@ -58,8 +77,19 @@ public class EnemyAudio : MonoBehaviour
             case EnemyAudioState.Scream:
                 selectedClips = screamSFX;
                 overrideCurrentClip = true;
-                audioSource.volume = 0.7f;
-                yield return new WaitForSeconds(2.0f);
+                audioSource.volume = 0.8f;
+
+                // Wait while respecting the pause state
+                float screamDelay = 1.5f;
+                float elapsedTime = 0f;
+                while (elapsedTime < screamDelay)
+                {
+                    if (!isPaused)
+                    {
+                        elapsedTime += Time.deltaTime;
+                    }
+                    yield return null;
+                }
                 break;
             case EnemyAudioState.Run:
                 selectedClips = runSFX;
@@ -83,8 +113,8 @@ public class EnemyAudio : MonoBehaviour
                 audioSource.Play();
             }
         }
-        
     }
+
 
     public void StopSound()
     {
@@ -123,5 +153,29 @@ public class EnemyAudio : MonoBehaviour
         }
         
         lowPassFilter.cutoffFrequency = Mathf.Lerp(lowPassFilter.cutoffFrequency, targetFrequency, Time.deltaTime * 5f);
+    }
+    
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+        audioSource.Pause();
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+        audioSource.UnPause();
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+        audioSource.Pause();
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
+        audioSource.UnPause();
     }
 }

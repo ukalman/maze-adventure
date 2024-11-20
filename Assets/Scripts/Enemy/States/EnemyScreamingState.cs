@@ -7,6 +7,11 @@ public class EnemyScreamingState : EnemyBaseState
     private float rotationDuration = 1.5f; 
     public override void EnterState(EnemyController controller)
     {
+        if (!LevelManager.Instance.activeCombatEnemies.Contains(controller))
+        {
+            LevelManager.Instance.activeCombatEnemies.Add(controller);
+        }
+        
         controller.State = "Scream";
         animFinished = false;
         controller.enemyAgent.enabled = false;
@@ -64,6 +69,10 @@ public class EnemyScreamingState : EnemyBaseState
     
         while (timeElapsed < rotationDuration)
         {
+            while (controller.isPaused) // PAUSE HANDLE
+            {
+                yield return null;
+            }
             timeElapsed += Time.deltaTime;
             controller.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, timeElapsed / rotationDuration);
             yield return null;
@@ -81,17 +90,21 @@ public class EnemyScreamingState : EnemyBaseState
     
     private IEnumerator WaitForScreamingAnimation(EnemyController controller)
     {
-        /*
-        while ((!animFinished && !controller.isDead) &&
-               (controller.anim.GetCurrentAnimatorStateInfo(0).normalizedTime < 1.0f ||
-                controller.anim.GetCurrentAnimatorStateInfo(0).IsName("ZombieScreaming")))
+        float elapsedTime = 0f;
+        float screamDuration = 2.5f;
+
+        while (elapsedTime < screamDuration)
         {
+            // Pause handling
+            while (controller.isPaused)
+            {
+                yield return null; // Wait until the game is unpaused
+            }
+
+            elapsedTime += Time.deltaTime;
             yield return null;
         }
-        */
 
-        yield return new WaitForSeconds(2.5f);
-        
         if (!controller.isDead)
         {
             animFinished = true;

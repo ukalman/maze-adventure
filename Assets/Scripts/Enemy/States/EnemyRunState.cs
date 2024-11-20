@@ -12,6 +12,11 @@ public class EnemyRunState : EnemyBaseState
     
     public override void EnterState(EnemyController controller)
     {
+        if (!LevelManager.Instance.activeCombatEnemies.Contains(controller))
+        {
+            LevelManager.Instance.activeCombatEnemies.Add(controller);
+        }
+        
         controller.State = "Run";
         playerTransform = GameManager.Instance.Player.transform;
         if (controller.anim != null)

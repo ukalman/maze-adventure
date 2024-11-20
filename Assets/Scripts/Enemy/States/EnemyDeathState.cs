@@ -9,6 +9,11 @@ public class EnemyDeathState : EnemyBaseState
     
     public override void EnterState(EnemyController controller)
     {
+        if (LevelManager.Instance.activeCombatEnemies.Contains(controller))
+        {
+            LevelManager.Instance.activeCombatEnemies.Remove(controller);
+        }
+        
         controller.State = "Death";
         
         if (controller.enemyAgent != null)

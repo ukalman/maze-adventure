@@ -11,15 +11,20 @@ public class MazeCell : MonoBehaviour
     [SerializeField] private GameObject frontWall;
     [SerializeField] private GameObject backWall;
     [SerializeField] private GameObject unvisitedBlock;
-
+    
 
     [SerializeField] private GameObject[] firstAidArray;
-
+    [SerializeField] private GameObject[] circuitBreakerArray;
+    
     public List<int> activeWalls = new List<int>();
+
+    [SerializeField] private ReflectionProbe reflectionProbe;
+    [SerializeField] private GameObject spotLight;
     
     public bool IsVisited { get; private set; }
 
     public bool hasFirstAid;
+    public bool hasCircuitBreaker;
     
     private void Start()
     {
@@ -32,13 +37,30 @@ public class MazeCell : MonoBehaviour
         {
             firstAidArray[i].SetActive(false);
         }
-        
+
+        EventManager.Instance.OnLightsTurnedOn += OnLightsTurnedOn;
+
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnLightsTurnedOn -= OnLightsTurnedOn;
     }
 
     public void Visit()
     {
         IsVisited = true;
         unvisitedBlock.SetActive(false);
+    }
+
+    public GameObject GetLeftWall()
+    {
+        return leftWall;
+    }
+
+    public GameObject GetRightWall()
+    {
+        return rightWall;
     }
 
     public void ClearLeftWall()
@@ -67,7 +89,7 @@ public class MazeCell : MonoBehaviour
 
     public void ActivateFirstAidRandomly()
     {
-        int index = Random.Range(0, activeWalls.Count - 1);
+        int index = Random.Range(0, activeWalls.Count);
         firstAidArray[activeWalls[index]].SetActive(true);
 
         List<GameObject> firstAidsToDestroy = new List<GameObject>();
@@ -90,6 +112,31 @@ public class MazeCell : MonoBehaviour
         hasFirstAid = true;
     }
 
+    public void ActivateCircuitBreakerRandomly()
+    {
+        int index = Random.Range(0, activeWalls.Count);
+        circuitBreakerArray[activeWalls[index]].SetActive(true);
+        
+        List<GameObject> circuitBreakersToDestroy = new List<GameObject>();
+        
+        for (int i = 0; i < circuitBreakerArray.Length; i++)
+        {
+            if (i != activeWalls[index])
+            {
+                circuitBreakersToDestroy.Add(circuitBreakerArray[i]);
+            }
+        }
+        
+        for (int i = 0; i < 3; i++)
+        {
+            var circuitBreakerToDestroy = circuitBreakersToDestroy[0];
+            circuitBreakersToDestroy.RemoveAt(0);
+            Destroy(circuitBreakerToDestroy);
+        }
+
+        hasCircuitBreaker = true;
+    }
+
     public void DestroyAllFirstAidKits()
     {
         List<GameObject> firstAidsToDestroy = new List<GameObject>(firstAidArray);
@@ -101,4 +148,23 @@ public class MazeCell : MonoBehaviour
             Destroy(firstAidToDestroy);
         }
     }
+
+    public void DestroyAllCircuitBreakers()
+    {
+        List<GameObject> circuitBreakersToDestroy = new List<GameObject>(circuitBreakerArray);
+        
+        for (int i = 0; i < 4; i++)
+        {
+            var circuitBreakerToDestroy = circuitBreakersToDestroy[0];
+            circuitBreakersToDestroy.RemoveAt(0);
+            Destroy(circuitBreakerToDestroy);
+        }
+    }
+
+    private void OnLightsTurnedOn()
+    {
+        if (spotLight != null) Destroy(spotLight);
+    }
+    
+    
 }

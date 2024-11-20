@@ -16,8 +16,10 @@ public class DetectionStateManager : MonoBehaviour
     private float playerSeenTimer;// Timer to track how long the player has been "seen"
     private const float minChaseDuration = 5.0f;
     private float hearingDistance = 15.0f;
-    private bool playerHeardRecently; 
+    public bool playerHeardRecently; 
     private float playerHeardDuration = 1.0f; // Duration to consider the player "heard"
+
+    private bool isPaused;
     
     // Start is called before the first frame update
     void Start()
@@ -26,11 +28,21 @@ public class DetectionStateManager : MonoBehaviour
         playerHealth = GameManager.Instance.Player.GetComponent<PlayerHealth>();
         enemyController = GetComponent<EnemyController>();
         EventManager.Instance.OnPlayerFired += OnPlayerFired;
+        
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
     }
 
     private void OnDestroy()
     {
         EventManager.Instance.OnPlayerFired -= OnPlayerFired;
+        
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
     }
 
     // Update is called once per frame
@@ -41,10 +53,13 @@ public class DetectionStateManager : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (!LevelManager.Instance.HasLevelStarted) return;
+        
+        if (isPaused) return;
+        
         if (PlayerSeen() || playerHeardRecently)
         {
             // Reset the timer because the player is seen
-            //playerSeenTimer = minChaseDuration;
             playerSeenTimer = Mathf.Max(playerSeenTimer, minChaseDuration);
 
             // Update enemy distance and state
@@ -84,9 +99,9 @@ public class DetectionStateManager : MonoBehaviour
     public bool PlayerSeen()
     {
         if (playerHealth != null && playerHealth.isDead) return false;
-        
+        if (LevelManager.Instance.HasNexusCore) return true;
+         
         enemyEyes.LookAt(playerHead.position);
-        Debug.DrawRay(enemyEyes.position, enemyEyes.forward, Color.red);
         if (Vector3.Distance(enemyEyes.position, playerHead.position) > lookDistance)
         {
             return false;
@@ -97,11 +112,11 @@ public class DetectionStateManager : MonoBehaviour
         float angleToPlayer = Vector3.Angle(enemyEyes.parent.forward, dirToPlayer);
 
         
-        if (enemyController.CurrentState != enemyController.Attack && GameManager.Instance.PlayerMovement.isCrouching)
+        if (enemyController.CurrentState != enemyController.Attack && GameManager.Instance.PlayerMovement.isCrouching && !GameManager.Instance.PlayerMovement.isFlashlightOn)
         {
             if (angleToPlayer > fov * 0.5f)
             {
-                return false; // 60 degrees for each side
+                return false; // fov / 2 degrees for each side
             }
         }
         
@@ -138,10 +153,25 @@ public class DetectionStateManager : MonoBehaviour
             
         }
     }
-    
-    public bool PlayerHeard()
+
+    private void OnDroneCamActivated()
     {
-        return playerSeenTimer > 0; // Continue chasing if the player was recently heard
+        isPaused = true;
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
     }
     
 }

@@ -19,8 +19,9 @@ public class EventManager : MonoBehaviour
             Destroy(gameObject); 
         }
     }
+
+    public event Action<GameDifficulty> OnDifficultySelected;
     
-    // convert all these UnityActions to delegates and events afterwards. ENCOURAGE BEING EXPLICIT!
     public event Action OnFirstAidUsed;
     public event Action OnWeaponChanged;
     
@@ -32,7 +33,9 @@ public class EventManager : MonoBehaviour
 
     public event Action OnMazeGenerated;
 
-    public event Action<int> OnEnemyDied;
+    public event Action OnEnemyKilled;
+    
+    public event Action<GameObject> OnEnemyDestroy;
 
     public event Action<AmmoType> OnExtraAmmoDepleted;
 
@@ -41,6 +44,32 @@ public class EventManager : MonoBehaviour
     public event Action OnNavMeshBaked;
 
     public event Action OnPlayerFired;
+
+    public event Action OnMazeExit;
+
+    public event Action OnDroneCamActivated;
+
+    public event Action OnDroneCamDeactivated;
+
+    public event Action OnGamePaused;
+
+    public event Action OnGameContinued;
+
+    public event Action OnLightsTurnedOn;
+
+    public event Action OnFlashlightTurnedOn;
+    
+    public event Action OnFlashlightTurnedOff;
+
+    public event Action OnNexusCoreObtained;
+
+    public event Action OnLevelInstantiated;
+
+    public event Action OnLevelStarted;
+    
+    
+    public event Action OnMainMenuReadyClicked;
+
     
     public void InvokeOnFirstAidUsed()
     {
@@ -72,9 +101,14 @@ public class EventManager : MonoBehaviour
         OnMazeGenerated?.Invoke();
     }
 
-    public void InvokeOnEnemyDied(int groupID)
+    public void InvokeOnEnemyKilled()
     {
-        OnEnemyDied?.Invoke(groupID);
+        OnEnemyKilled?.Invoke();
+    }
+    
+    public void InvokeOnEnemyDestroy(GameObject zombieGroup)
+    {
+        OnEnemyDestroy?.Invoke(zombieGroup);
     }
 
     public void InvokeOnExtraAmmoDepleted(AmmoType type)
@@ -95,6 +129,86 @@ public class EventManager : MonoBehaviour
     public void InvokeOnPlayerFired()
     {
         OnPlayerFired?.Invoke();
+    }
+
+    public void InvokeOnMazeExit()
+    {
+        OnMazeExit?.Invoke();
+    }
+
+    public void InvokeOnDroneCamActivated()
+    {
+        OnDroneCamActivated?.Invoke();
+    }
+    
+    public void InvokeOnDroneCamDeactivated()
+    {
+        OnDroneCamDeactivated?.Invoke();
+    }
+
+    public void InvokeOnGamePaused()
+    {
+        OnGamePaused?.Invoke();
+    }
+
+    public void InvokeOnGameContinued()
+    {
+        OnGameContinued?.Invoke();
+    }
+
+    public void InvokeOnLightsTurnedOn()
+    {
+        OnLightsTurnedOn?.Invoke();
+    }
+
+    public void InvokeOnFlashlightTurnedOn()
+    {
+        OnFlashlightTurnedOn?.Invoke();
+    }
+    
+    public void InvokeOnFlashlightTurnedOff()
+    {
+        OnFlashlightTurnedOff?.Invoke();
+    }
+
+    public void InvokeOnNexusCoreObtained()
+    {
+        OnNexusCoreObtained?.Invoke();
+    }
+
+    public void InvokeOnLevelInstantiated()
+    {
+        OnLevelInstantiated?.Invoke();
+    }
+
+    public void InvokeOnLevelStarted()
+    {
+        OnLevelStarted?.Invoke();
+    }
+
+    public void InvokeOnDifficultySelected(GameDifficulty difficulty)
+    {
+        OnDifficultySelected?.Invoke(difficulty);
+    }
+
+    public void OnEasyDifficultySelected()
+    {
+        InvokeOnDifficultySelected(GameDifficulty.EASY);
+    }
+    
+    public void OnModerateDifficultySelected()
+    {
+        InvokeOnDifficultySelected(GameDifficulty.MODERATE);
+    }
+    
+    public void OnHardDifficultySelected()
+    {
+        InvokeOnDifficultySelected(GameDifficulty.HARD);
+    }
+    
+    public void InvokeOnMainMenuReadyClicked()
+    {
+        OnMainMenuReadyClicked?.Invoke();
     }
     
 }

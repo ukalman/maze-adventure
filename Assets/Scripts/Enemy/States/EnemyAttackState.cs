@@ -5,6 +5,11 @@ public class EnemyAttackState : EnemyBaseState
 {
     public override void EnterState(EnemyController controller)
     {
+        if (!LevelManager.Instance.activeCombatEnemies.Contains(controller))
+        {
+            LevelManager.Instance.activeCombatEnemies.Add(controller);
+        }
+        
         if (controller.enemyAgent != null)
         {
             controller.enemyAgent.enabled = true;

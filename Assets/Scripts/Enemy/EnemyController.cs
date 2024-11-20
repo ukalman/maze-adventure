@@ -9,8 +9,8 @@ public class EnemyController : MonoBehaviour
     public float runSpeed = 3.5f;
     public float walkSpeed = 1.0f;
     public float distToPlayer;
-    public float attackDist = 2.0f;
-    private float attackDamage = 25.0f;
+    public float attackDist = 2.5f;
+    private float attackDamage = 15.0f;
     
     public bool playerSeen;
     public bool isDead;
@@ -41,11 +41,17 @@ public class EnemyController : MonoBehaviour
     public RagdollManager ragdollManager;
 
     [SerializeField] private Material transparentMat1, transparentMat2;
-
+    [SerializeField] private GameObject minimapTile;
+    
     public EnemyAudio enemyAudio;
+
+    public bool isPaused;
+
+    public GameObject zombieGroup;
     
     private void Start()
     {
+        zombieGroup = transform.parent.gameObject;
         anim = GetComponent<Animator>();
         enemyAgent = GetComponent<NavMeshAgent>();
         enemyAudio = GetComponent<EnemyAudio>();
@@ -54,16 +60,34 @@ public class EnemyController : MonoBehaviour
         SwitchState(Idle);
         isDead = health.isDead;
         playerHealth = GameManager.Instance.Player.GetComponent<PlayerHealth>();
+        
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
     }
 
     private void Update()
     {
+        if (!LevelManager.Instance.HasLevelStarted) return;
+        
+        if (isPaused) return;
+        
         isDead = health.isDead;
         CurrentState.UpdateState(this);
         if (isDead && !isDeadDoubleCheck)
         {
             StartCoroutine(OnDeath());
         }
+        
     }
     
     public void SwitchState(EnemyBaseState stateToSwitch)
@@ -97,26 +121,57 @@ public class EnemyController : MonoBehaviour
 
     private IEnumerator OnDeath()
     {
+        EventManager.Instance.InvokeOnEnemyKilled();
+        //minimapTile.SetActive(false);
         isDead = false;
         isDeadDoubleCheck = true;
-        //health.isDead = false;
-        Destroy(enemyAgent); 
 
-        // if enemy is in running or screaming state
+        // Destroy the enemy's NavMesh agent
+        Destroy(enemyAgent);
+
+        // Handle animations and ragdoll
         if (anim != null)
         {
-            yield return new WaitForSeconds(3.0f);
+            float waitTime = 3.0f;
+            float elapsedTime = 0f;
+
+            while (elapsedTime < waitTime)
+            {
+                if (!isPaused)
+                {
+                    elapsedTime += Time.deltaTime;
+                }
+                yield return null; // Waits for the game to unpause if paused
+            }
+
             Destroy(anim);
             ragdollManager.TriggerRagdoll();
         }
 
-        yield return new WaitForSeconds(2.0f);
+        // Wait before deactivating ragdoll
+        float ragdollWaitTime = 2.0f;
+        float ragdollElapsedTime = 0f;
+
+        while (ragdollElapsedTime < ragdollWaitTime)
+        {
+            if (!isPaused)
+            {
+                ragdollElapsedTime += Time.deltaTime;
+            }
+            yield return null;
+        }
+
         ragdollManager.DeactivateRagdoll();
 
+        // Fade away the object
         yield return StartCoroutine(FadeAway());
+
+        EventManager.Instance.InvokeOnEnemyDestroy(zombieGroup);
         
+        // Destroy the enemy object
         Destroy(gameObject);
     }
+
 
     private IEnumerator FadeAway()
     {
@@ -133,6 +188,13 @@ public class EnemyController : MonoBehaviour
             // Begin fading out by adjusting the alpha over time
             while (elapsedTime < fadeDuration)
             {
+                // Pause handling
+                while (isPaused)
+                {
+                    yield return null; // Wait until the game is unpaused
+                }
+
+                // Increment elapsed time
                 elapsedTime += Time.deltaTime;
                 float newOpacity = Mathf.Lerp(1.0f, 0, elapsedTime / fadeDuration);
 
@@ -143,12 +205,42 @@ public class EnemyController : MonoBehaviour
                     color.a = newOpacity;
                     material.color = color;
                 }
+
                 yield return null;
             }
         }
     }
 
-    
+
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+        if (anim != null) anim.speed = 0;
+        if (enemyAgent != null) enemyAgent.isStopped = true;
+        if (LevelManager.Instance.lightsTurnedOn) LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+        if (anim != null) anim.speed = 1;
+        if (enemyAgent != null) enemyAgent.isStopped = false;
+        LevelManager.Instance.levelUIManager.UnregisterTrackedObject(transform);
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+        anim.speed = 0;
+        enemyAgent.isStopped = true;
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
+        anim.speed = 1;
+        enemyAgent.isStopped = false;
+    }
 
     
 }

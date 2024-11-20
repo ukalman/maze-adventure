@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8357514053088833298}
   m_Layer: 0
   m_Name: Graphics
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 9161828465545159020}
   m_Layer: 0
   m_Name: AK47
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -113,7 +113,7 @@ GameObject:
   - component: {fileID: 4681923688456519681}
   m_Layer: 0
   m_Name: AK47Table
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -167,9 +167,9 @@ GameObject:
   - component: {fileID: 2246463966487817883}
   - component: {fileID: 2224606652437206507}
   - component: {fileID: 3818888676947351414}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: AK-47
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -253,7 +253,7 @@ GameObject:
   - component: {fileID: 932134775911636968}
   m_Layer: 12
   m_Name: MinimapTile
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -357,7 +357,7 @@ GameObject:
   - component: {fileID: 2054382524391053724}
   m_Layer: 0
   m_Name: Graphics
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -455,6 +455,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: A_futuristic_table__1115130944_refine
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c2d932d7fbeef8f4a81b653b82f89b20,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c2d932d7fbeef8f4a81b653b82f89b20,
+        type: 3}
+      propertyPath: m_TagString
+      value: AK47Collectible
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -37,9 +37,8 @@ public class PlayerHealth : MonoBehaviour
         {
             CurrentHealth -= damage;
             if (CurrentHealth <= 0.0f) PlayerDeath();
-            Debug.Log($"Player took {damage} damage, New health is: {CurrentHealth}");
             healthBar.SetHealth(CurrentHealth);
-            damageEffect.TriggerDamageEffect(CurrentHealth / maxHealth);
+            damageEffect.TriggerDamageEffect();
         }
     }
 
@@ -59,7 +58,6 @@ public class PlayerHealth : MonoBehaviour
     private void Heal()
     {
         CurrentHealth += healAmount;
-        Debug.Log($"Healed! New health is {CurrentHealth}");
         healthBar.SetHealth(CurrentHealth);
     }
     

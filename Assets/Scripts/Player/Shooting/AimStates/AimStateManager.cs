@@ -46,6 +46,8 @@ public class AimStateManager : MonoBehaviour
     private float hipWidth = 43.7006f;
     private float hipHeight = 42.7765f;
     private float knobWidth = 6.0f, knobHeight = 6.0f;
+
+    private bool isPaused;
     
     private void Awake()
     {
@@ -76,10 +78,27 @@ public class AimStateManager : MonoBehaviour
         hipFov = vCam.m_Lens.FieldOfView;
         anim = GetComponent<Animator>();
         SwitchState(Hip);
+        
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
     }
-    
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
+    }
+
     void Update()
     {
+        if (!LevelManager.Instance.HasLevelStarted) return;
+        
+        if (isPaused) return;
+        
         xAxis += Input.GetAxisRaw("Mouse X") * mouseSensitivity;
         yAxis -= Input.GetAxisRaw("Mouse Y") * mouseSensitivity;
         yAxis = Mathf.Clamp(yAxis, -80.0f, 80.0f);
@@ -102,6 +121,10 @@ public class AimStateManager : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (!LevelManager.Instance.HasLevelStarted) return;
+        
+        if (isPaused) return;
+        
         camFollowPos.localEulerAngles = new Vector3(yAxis, camFollowPos.localEulerAngles.y,camFollowPos.localEulerAngles.z);
         transform.eulerAngles = new Vector3(transform.eulerAngles.x, xAxis, transform.eulerAngles.z);
     }
@@ -133,6 +156,30 @@ public class AimStateManager : MonoBehaviour
     {
         crosshair.sprite = knob;
         crosshair.rectTransform.sizeDelta = new Vector2(knobWidth, knobHeight);
+    }
+    
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+        anim.speed = 0;
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+        anim.speed = 1;
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+        anim.speed = 0;
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
+        anim.speed = 1;
     }
     
 }

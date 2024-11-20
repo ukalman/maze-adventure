@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -22,16 +23,36 @@ public class ActionStateManager : MonoBehaviour
     public TwoBoneIKConstraint leftHandIK;
 
     public WeaponClassManager weaponClassManager;
+
+    private bool isPaused;
     
     void Start()
     {
         SwitchState(Default);
         anim = GetComponent<Animator>();
         weaponClassManager = GetComponent<WeaponClassManager>();
+        
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
     }
-    
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
+    }
+
+
     void Update()
     {
+        if (!LevelManager.Instance.HasLevelStarted) return;
+        
+        if (isPaused) return;
+        
         CurrentState.UpdateState(this);
     }
 
@@ -67,5 +88,29 @@ public class ActionStateManager : MonoBehaviour
         currentWeapon = weapon;
         audioSource = weapon.audioSource;
         ammo = weapon.ammo;
+    }
+    
+    private void OnDroneCamActivated()
+    {
+        isPaused = true;
+        anim.speed = 0;
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+        anim.speed = 1;
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+        anim.speed = 0;
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
+        anim.speed = 1;
     }
 }

@@ -5,6 +5,14 @@ TagManager:
   serializedVersion: 2
   tags:
   - CinemachineTarget
+  - AmmoCase
+  - Zombie
+  - FirstAid
+  - AK47Collectible
+  - CircuitBreaker
+  - NexusCore
+  - Entrance
+  - Exit
   layers:
   - Default
   - TransparentFX
@@ -20,10 +28,10 @@ TagManager:
   - NonCollisionTrigger
   - MinimapTile
   - MazeFloor
-  - 
-  - 
-  - 
-  - 
+  - MazeSpotLight
+  - Ceiling
+  - PlayerUI
+  - DroneWallLayer
   - 
   - 
   - 

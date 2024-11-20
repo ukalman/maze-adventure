@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class AmmoCase : MonoBehaviour
 {
@@ -12,15 +14,35 @@ public class AmmoCase : MonoBehaviour
 
     private bool isPlayerIn;
     private bool canCollect;
-    
+
+    private bool isPaused;
+
+    private void Awake()
+    {
+        EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused += OnGamePaused;
+        EventManager.Instance.OnGameContinued += OnGameContinued;
+    }
+
     void Start()
     {
         interactionText = GameManager.Instance.interactionText;
         ammoAmount = Random.Range(25, 50);
     }
-    
+
+    private void OnDestroy()
+    {
+        EventManager.Instance.OnDroneCamActivated -= OnDroneCamActivated;
+        EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
+        EventManager.Instance.OnGamePaused -= OnGamePaused;
+        EventManager.Instance.OnGameContinued -= OnGameContinued;
+    }
+
     void Update()
     {
+        if (isPaused) return;
+        
         if (isPlayerIn && canCollect)
         {
             if (Input.GetKeyDown(KeyCode.E))
@@ -74,5 +96,28 @@ public class AmmoCase : MonoBehaviour
             }
         }
         
+    }
+    
+    private void OnDroneCamActivated()
+    {
+        Debug.Log("An ammo case is activated!");
+        isPaused = true;
+        LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
+    }
+
+    private void OnDroneCamDeactivated()
+    {
+        isPaused = false;
+        LevelManager.Instance.levelUIManager.UnregisterTrackedObject(transform);
+    }
+
+    private void OnGamePaused()
+    {
+        isPaused = true;
+    }
+
+    private void OnGameContinued()
+    {
+        isPaused = false;
     }
 }

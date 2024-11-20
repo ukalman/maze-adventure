@@ -15,6 +15,8 @@ public class MazeGenerator : MonoBehaviour
      */
     
     [SerializeField] private MazeCell mazeCellPrefab;
+    [SerializeField] private GameObject mazeEntranceDoor;
+    [SerializeField] private GameObject mazeExitDoor;
 
     [SerializeField] private int mazeWidth, mazeDepth;
     [SerializeField] private float scaleX, scaleY, scaleZ;
@@ -22,20 +24,48 @@ public class MazeGenerator : MonoBehaviour
     [SerializeField] private int seed;
 
     [SerializeField] private bool useSeed;
+
+    [SerializeField] private Material wallMat;
+    [SerializeField] private Material floorMat;
+    [SerializeField] private Material doorMat;
+    [SerializeField] private Material ammoCaseAK47Mat;
+    [SerializeField] private Material ammoCaseM4Mat;
+    [SerializeField] private Material firstAidMat;
+    [SerializeField] private Material circuitBreakerMat;
+    [SerializeField] private Material tableMat;
     
     private MazeCell[,] mazeGrid;
 
     private List<List<int>> firstAidPositions;
+    private List<List<int>> circuitBreakerPositions;
+    
     [SerializeField] private int firstAidCount = 5;
+    private int circuitBreakerCount;
+
+    private float waitingTime;
+
+    [SerializeField] private int distFromSpawnOrigin;
+    [SerializeField] private GameObject nexusCorePrefab;
     
     private void OnDestroy()
     {
         EventManager.Instance.OnRequirementsBeforeNavMeshSpawned -= OnRequirementsBeforeNavMeshSpawned;
+        EventManager.Instance.OnLightsTurnedOn -= OnLightsTurnedOn;
+
+        wallMat.SetFloat("_Metallic",1.0f);
+        floorMat.SetFloat("_Metallic",1.0f);
+        doorMat.SetFloat("_Metallic", 1.0f);
+        ammoCaseAK47Mat.SetFloat("_Metallic",1.0f);
+        ammoCaseM4Mat.SetFloat("_Metallic",1.0f);
+        circuitBreakerMat.SetFloat("_Metallic", 1.0f);
+        tableMat.SetFloat("_Metallic", 1.0f);
+        firstAidMat.SetFloat("_Metallic",1.0f);
     }
     
     IEnumerator Start()
     {
         EventManager.Instance.OnRequirementsBeforeNavMeshSpawned += OnRequirementsBeforeNavMeshSpawned;
+        EventManager.Instance.OnLightsTurnedOn += OnLightsTurnedOn;
         if (useSeed)
         {
             Random.InitState(seed);
@@ -52,14 +82,23 @@ public class MazeGenerator : MonoBehaviour
             case GameDifficulty.EASY:
                 mazeWidth = 10;
                 mazeDepth = 10;
+                circuitBreakerCount = 1;
+                distFromSpawnOrigin = 5;
+                waitingTime = 0.05f;
                 break;
             case GameDifficulty.MODERATE:
                 mazeWidth = 15;
                 mazeDepth = 15;
+                circuitBreakerCount = 2;
+                distFromSpawnOrigin = 10;
+                waitingTime = 0.005f;
                 break;
             case GameDifficulty.HARD:
                 mazeWidth = 22;
                 mazeDepth = 22;
+                circuitBreakerCount = 2;
+                distFromSpawnOrigin = 15;
+                waitingTime = 0.0005f;
                 break;
         }
         
@@ -76,8 +115,12 @@ public class MazeGenerator : MonoBehaviour
 
         yield return GenerateMaze(null, mazeGrid[0,0]);
 
+        PlaceDoors();
         firstAidPositions = GetRandomPositionsFrom2DArray(mazeWidth, mazeDepth, firstAidCount);
+        circuitBreakerPositions = GetRandomPositionsFrom2DArray(mazeWidth, mazeDepth, circuitBreakerCount,true);
         ActivateFirstAidKits();
+        PlaceCircuitBreakers();
+        PlaceNexusCore();
         
         //GetComponent<NavMeshSurface>().BuildNavMesh();
         EventManager.Instance.InvokeOnMazeGenerated();
@@ -95,7 +138,7 @@ public class MazeGenerator : MonoBehaviour
         currentCell.Visit();
         ClearWalls(previousCell, currentCell);
 
-        //yield return new WaitForSeconds(0.05f);
+        yield return new WaitForSeconds(waitingTime);
         MazeCell nextCell;
 
         do
@@ -200,6 +243,40 @@ public class MazeGenerator : MonoBehaviour
         }
     }
 
+    private void PlaceDoors()
+    {
+        var entrance = Instantiate(mazeEntranceDoor, mazeGrid[0, 0].GetLeftWall().transform.position, Quaternion.identity, mazeGrid[0, 0].GetLeftWall().transform);
+        
+        Vector3 entranceLocalScale = entrance.transform.localScale;
+        entrance.transform.localScale = new Vector3(
+            entranceLocalScale.x / GetScaleX(),
+            entranceLocalScale.y / GetScaleY(),
+            entranceLocalScale.z / GetScaleZ()
+        );
+        
+        entrance.transform.rotation = Quaternion.Euler(0.0f, -90.0f, 0.0f);
+
+        float xOffset = 0.1113f;
+        float yOffset = -0.494f;
+
+        entrance.transform.localPosition = new Vector3(xOffset, yOffset, 0.0f);
+        
+        var exit = Instantiate(mazeExitDoor, mazeGrid[mazeWidth-1, mazeDepth-1].GetRightWall().transform.position, Quaternion.identity, mazeGrid[mazeWidth -1, mazeDepth-1].GetRightWall().transform);
+        
+        Vector3 exitLocalScale = exit.transform.localScale;
+        exit.transform.localScale = new Vector3(
+            exitLocalScale.x / GetScaleX(),
+            exitLocalScale.y / GetScaleY(),
+            exitLocalScale.z / GetScaleZ()
+        );
+
+        xOffset = 0.3403f;
+        exit.transform.rotation = Quaternion.Euler(0.0f, 90.0f, 0.0f);
+
+        exit.transform.localPosition = new Vector3(xOffset, yOffset, 0.0f);
+
+    }
+
     private void ActivateFirstAidKits()
     {
         for (int i = 0; i < firstAidCount; i++)
@@ -215,7 +292,55 @@ public class MazeGenerator : MonoBehaviour
                 mazeGrid[x,z].DestroyAllFirstAidKits();
             }
         }
+    }
+
+    private void PlaceCircuitBreakers()
+    {
+        for (int i = 0; i < circuitBreakerCount; i++)
+        {
+            mazeGrid[circuitBreakerPositions[i][0],circuitBreakerPositions[i][1]].ActivateCircuitBreakerRandomly();
+        }
         
+        for (int x = 0; x < mazeWidth; x++)
+        {
+            for (int z = 0; z < mazeDepth; z++)
+            {
+                if (mazeGrid[x,z].hasCircuitBreaker) continue;
+                mazeGrid[x,z].DestroyAllCircuitBreakers();
+            }
+        }
+    }
+
+    private void PlaceNexusCore()
+    {
+        // top right cell
+        var mazeCell = Extensions.GetRandomElementWithinDistance(GetMazeGrid(), 0,
+            GetMazeDepth() - 1, distFromSpawnOrigin);
+        
+        var nexusCore = Instantiate(nexusCorePrefab, mazeCell.transform.position, Quaternion.identity, mazeCell.transform);
+            
+        Vector3 currentLocalScale = nexusCore.transform.localScale;
+            
+        nexusCore.transform.localScale = new Vector3(
+            currentLocalScale.x / GetScaleX(),
+            currentLocalScale.y / GetScaleY(),
+            currentLocalScale.z / GetScaleZ()
+        );
+        
+    }
+
+    private void OnLightsTurnedOn()
+    {
+        wallMat.SetFloat("_Metallic",0.0f);
+        //wallMat.SetFloat("_Smoothness",1.0f);
+        floorMat.SetFloat("_Metallic",0.0f);
+        //floorMat.SetFloat("_Smoothness",1.0f);
+        doorMat.SetFloat("_Metallic", 0.0f);
+        ammoCaseAK47Mat.SetFloat("_Metallic",0.0f);
+        ammoCaseM4Mat.SetFloat("_Metallic",0.0f);
+        circuitBreakerMat.SetFloat("_Metallic", 0.0f);
+        tableMat.SetFloat("_Metallic", 0.0f);
+        firstAidMat.SetFloat("_Metallic",0.0f);
     }
     
     List<List<int>> GetRandomPositionsFrom2DArray(int width, int depth, int count)
@@ -229,6 +354,26 @@ public class MazeGenerator : MonoBehaviour
             int y = Random.Range(0, depth);
             
             if (!usedPositions.Contains((x, y)))
+            {
+                usedPositions.Add((x, y));
+                selectedPositions.Add(new List<int> { x, y });
+            }
+        }
+
+        return selectedPositions;
+    }
+    
+    List<List<int>> GetRandomPositionsFrom2DArray(int width, int depth, int count, bool forCircuitBreaker)
+    {
+        List<List<int>> selectedPositions = new List<List<int>>();
+        HashSet<(int, int)> usedPositions = new HashSet<(int, int)>();
+        
+        while (selectedPositions.Count < count)
+        {
+            int x = Random.Range(0, width);
+            int y = Random.Range(0, depth);
+            
+            if (!usedPositions.Contains((x, y)) && !mazeGrid[x,y].hasFirstAid)
             {
                 usedPositions.Add((x, y));
                 selectedPositions.Add(new List<int> { x, y });
@@ -272,25 +417,5 @@ public class MazeGenerator : MonoBehaviour
     {
         return mazeWidth >= mazeDepth ? mazeWidth : mazeDepth;
     }
-
-    public Vector2Int GetTopRightCellCoordinates()
-    {
-        return new Vector2Int(0, mazeDepth - 1);
-        //return mazeGrid[0, mazeDepth - 1];
-    }
     
-    public MazeCell GetBottomLeftCell()
-    {
-        return mazeGrid[mazeWidth - 1, 0];
-    }
-    
-    public MazeCell GetBottomRightCell()
-    {
-        return mazeGrid[mazeWidth - 1, mazeDepth - 1];
-    }
-
-    void Update()
-    {
-        
-    }
 }

@@ -17,6 +17,8 @@ public class EnemyHealth : MonoBehaviour
     
     private void Start()
     {
+        bloodSplatterPrefab.Play();
+        bloodSplatterPrefab.Stop();
         Health = 100.0f;
         enemyController = GetComponent<EnemyController>();
         ragdollManager = GetComponent<RagdollManager>();
@@ -26,6 +28,7 @@ public class EnemyHealth : MonoBehaviour
     {
         if (Health > 0.0f)
         {
+            enemyController.playerSeen = true;
             Health -= damage;
             if (Health <= 0.0f) EnemyDeath();
         }

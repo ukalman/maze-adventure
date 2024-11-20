@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3085555458090137757}
   m_Layer: 0
   m_Name: AK47
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -81,7 +81,7 @@ GameObject:
   - component: {fileID: 2387375281865325419}
   m_Layer: 0
   m_Name: AK-47
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -95,7 +95,7 @@ Transform:
   m_GameObject: {fileID: 4188722980774140606}
   serializedVersion: 2
   m_LocalRotation: {x: 0.69405633, y: 0.1352251, z: -0.1352251, w: 0.69405633}
-  m_LocalPosition: {x: -0, y: 0.0083, z: 0}
+  m_LocalPosition: {x: -0, y: 0.067, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -162,7 +162,7 @@ GameObject:
   - component: {fileID: 3929724622411847653}
   m_Layer: 0
   m_Name: Graphics
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -198,7 +198,7 @@ GameObject:
   - component: {fileID: 8889742775869800292}
   m_Layer: 12
   m_Name: MinimapTile
-  m_TagString: Untagged
+  m_TagString: AK47Collectible
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
