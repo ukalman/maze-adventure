@@ -87,17 +87,17 @@ public class MazeGenerator : MonoBehaviour
                 waitingTime = 0.05f;
                 break;
             case GameDifficulty.MODERATE:
-                mazeWidth = 15;
-                mazeDepth = 15;
+                mazeWidth = 13;
+                mazeDepth = 13;
                 circuitBreakerCount = 2;
-                distFromSpawnOrigin = 10;
+                distFromSpawnOrigin = 8;
                 waitingTime = 0.005f;
                 break;
             case GameDifficulty.HARD:
-                mazeWidth = 22;
-                mazeDepth = 22;
+                mazeWidth = 16;
+                mazeDepth = 16;
                 circuitBreakerCount = 2;
-                distFromSpawnOrigin = 15;
+                distFromSpawnOrigin = 12;
                 waitingTime = 0.0005f;
                 break;
         }

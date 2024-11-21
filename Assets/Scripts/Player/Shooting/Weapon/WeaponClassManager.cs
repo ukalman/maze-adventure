@@ -84,7 +84,7 @@ public class WeaponClassManager : MonoBehaviour
 
     private void OnWeaponAcquired(WeaponName weaponName)
     {
-        LevelManager.Instance.collectedAK47 = true;
+        LevelManager.Instance.CollectedAK47 = true;
         actions.SwitchState(actions.Swap);
     }
 

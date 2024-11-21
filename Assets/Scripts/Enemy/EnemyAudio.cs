@@ -59,7 +59,7 @@ public class EnemyAudio : MonoBehaviour
     {
         if (!LevelManager.Instance.HasLevelStarted) return;
         
-        if(isPaused) return;
+        if (isPaused) return;
         
         if (controller.CurrentState != controller.Death) CheckOcclusion();
     }

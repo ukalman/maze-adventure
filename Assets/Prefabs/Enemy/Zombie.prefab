@@ -2543,14 +2543,15 @@ MonoBehaviour:
   playerSeen: 0
   isDead: 0
   playerHealth: {fileID: 0}
-  enemyAgent: {fileID: 0}
   State: 
   anim: {fileID: 0}
+  enemyAudio: {fileID: 0}
+  enemyAgent: {fileID: 0}
   ragdollManager: {fileID: 0}
   transparentMat1: {fileID: 2100000, guid: ddddcb6774e1020409a0100599655afe, type: 2}
   transparentMat2: {fileID: 2100000, guid: f22143f717363b64a9c794687358ec53, type: 2}
   minimapTile: {fileID: 5757240108585091103}
-  enemyAudio: {fileID: 0}
+  isAwayFromPlayer: 0
   isPaused: 0
   zombieGroup: {fileID: 0}
 --- !u!114 &3916423617282152587
@@ -2596,6 +2597,7 @@ MonoBehaviour:
   lookDistance: 15
   fov: 140
   enemyEyes: {fileID: 2295512150679799784}
+  activateDistance: 30
   playerHeardRecently: 0
 --- !u!195 &2859120219206907155
 NavMeshAgent:

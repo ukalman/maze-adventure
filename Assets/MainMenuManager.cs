@@ -7,7 +7,11 @@ public class MainMenuManager : MonoBehaviour
 {
 
     [SerializeField] private Camera guiCam;
-    [SerializeField] private GameObject gameModeUI;
+    
+    [SerializeField] private GameObject mainMenuContainer;
+    [SerializeField] private GameObject background;
+    [SerializeField] private GameObject sceneModels;
+    [SerializeField] private GameObject loadingScreen;
     
     [SerializeField] private AudioSource musicAudioSource;
     [SerializeField] private AudioSource sfxAudioSource;
@@ -22,27 +26,22 @@ public class MainMenuManager : MonoBehaviour
     
     void Start()
     {
-        EventManager.Instance.OnMainMenuReadyClicked += OnReadyClicked;
         musicAudioSource.clip = mainMenuAmbience_1;
         musicAudioSource.Play();
     }
 
-    private void OnDestroy()
-    {
-        EventManager.Instance.OnMainMenuReadyClicked -= OnReadyClicked;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-    
-    private void OnReadyClicked()
+    public void OnLaunchClicked()
     {
         sfxAudioSource.PlayOneShot(readyButtonSound);
-        gameModeUI.SetActive(false);
-        StartCoroutine(CameraZoomCoroutine());
+        mainMenuContainer.SetActive(false);
+        StartCoroutine(LoadLevelCoroutine());
+    }
+
+    private IEnumerator LoadLevelCoroutine()
+    {
+        yield return StartCoroutine(CameraZoomCoroutine());
+        StartCoroutine(SceneManager.Instance.LoadLevelAsync(1));
+
     }
 
     private IEnumerator CameraZoomCoroutine()
@@ -50,17 +49,20 @@ public class MainMenuManager : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
         sfxAudioSource.PlayOneShot(futuristicWhooshSound);
 
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.3f);
         float timer = 0.0f;
-        float whooshInterval = 2.0f;
+        float whooshInterval = 0.3f;
 
         while (timer <= whooshInterval)
         {
             timer += Time.deltaTime;
-            guiCam.fieldOfView -= 0.3f;
+            if (guiCam.fieldOfView >= 0.5f) guiCam.fieldOfView -= 0.4f;
             yield return null;
         }
         
+        background.SetActive(false);
+        Destroy(sceneModels);
+        loadingScreen.SetActive(true);
     }
     
     public void PlayButtonSound()

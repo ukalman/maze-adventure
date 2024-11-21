@@ -8,16 +8,14 @@ public class EventManager : MonoBehaviour
     
     private void Awake()
     {
-        if (Instance == null)
+        if (Instance != null && Instance != this)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            
+            Destroy(gameObject);
+            return;
         }
-        else
-        {
-            Destroy(gameObject); 
-        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject); 
     }
 
     public event Action<GameDifficulty> OnDifficultySelected;
@@ -66,9 +64,6 @@ public class EventManager : MonoBehaviour
     public event Action OnLevelInstantiated;
 
     public event Action OnLevelStarted;
-    
-    
-    public event Action OnMainMenuReadyClicked;
 
     
     public void InvokeOnFirstAidUsed()
@@ -206,9 +201,5 @@ public class EventManager : MonoBehaviour
         InvokeOnDifficultySelected(GameDifficulty.HARD);
     }
     
-    public void InvokeOnMainMenuReadyClicked()
-    {
-        OnMainMenuReadyClicked?.Invoke();
-    }
     
 }

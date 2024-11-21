@@ -63,13 +63,13 @@ public class AmmoCase : MonoBehaviour
             {
                 isPlayerIn = true;
                 interactionText.SetActive(true);
-                if (ammoType == AmmoType.AK47_762 && !LevelManager.Instance.collectedAK47)
+                if (ammoType == AmmoType.AK47_762 && !LevelManager.Instance.CollectedAK47)
                 {
                     interactionText.GetComponent<TMP_Text>().text = "To collect this ammo, you must first acquire an AK-47 rifle.";
                     canCollect = false;
                 }
                 
-                else if (ammoType == AmmoType.AK47_762 && LevelManager.Instance.collectedAK47)
+                else if (ammoType == AmmoType.AK47_762 && LevelManager.Instance.CollectedAK47)
                 {
                     interactionText.GetComponent<TMP_Text>().text = "Press \"E\" to collect AK-47 ammo.";
                     canCollect = true;

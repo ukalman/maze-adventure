@@ -7,6 +7,7 @@ public class EnemyHealth : MonoBehaviour
 {
     public float Health { get; private set; }
     private EnemyController enemyController;
+    private DetectionStateManager detectionStateManager;
     [HideInInspector] public bool isDead;
 
     private RagdollManager ragdollManager;
@@ -21,6 +22,7 @@ public class EnemyHealth : MonoBehaviour
         bloodSplatterPrefab.Stop();
         Health = 100.0f;
         enemyController = GetComponent<EnemyController>();
+        detectionStateManager = GetComponent<DetectionStateManager>();
         ragdollManager = GetComponent<RagdollManager>();
     }
 
@@ -28,7 +30,7 @@ public class EnemyHealth : MonoBehaviour
     {
         if (Health > 0.0f)
         {
-            enemyController.playerSeen = true;
+            detectionStateManager.playerHeardRecently = true;
             Health -= damage;
             if (Health <= 0.0f) EnemyDeath();
         }

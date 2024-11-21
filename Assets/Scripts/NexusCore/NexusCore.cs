@@ -61,7 +61,7 @@ public class NexusCore : MonoBehaviour
                 isPlayerIn = true;
                 interactionText.SetActive(true);
 
-                if (!LevelManager.Instance.lightsTurnedOn)
+                if (!LevelManager.Instance.VeinsActivated)
                 {
                     interactionText.GetComponent<TMP_Text>().text = "The Nexus core cannot be removed until the veins are activated.";
                     canCollect = false;
@@ -93,7 +93,7 @@ public class NexusCore : MonoBehaviour
     private void OnDroneCamActivated()
     {
         isPaused = true;
-        if (LevelManager.Instance.lightsTurnedOn) LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
+        if (LevelManager.Instance.VeinsActivated) LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
     }
 
     private void OnDroneCamDeactivated()

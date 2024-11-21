@@ -45,23 +45,25 @@ public class AudioManager : MonoBehaviour
     
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
+        if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
+            return;
         }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject); 
     }
 
     private void Start()
     {
+        musicVolume = 1.0f;
         //PlayMusic(horrorAmbienceMusic, musicVolume);
         
         //PlayAmbience(droneAmbienceSound, ambienceVolume);
         //isDroneAmbiencePlaying = true;
+        
+        OnSceneInitialized();
         
         EventManager.Instance.OnAmmoCollected += OnAmmoCollected;
         EventManager.Instance.OnWeaponAcquired += OnWeaponAcquired;
@@ -77,6 +79,8 @@ public class AudioManager : MonoBehaviour
         EventManager.Instance.OnNexusCoreObtained += OnNexusCoreObtained;
         
         EventManager.Instance.OnLevelStarted += OnLevelStarted;
+
+
     }
 
     private void OnDestroy()
@@ -95,6 +99,7 @@ public class AudioManager : MonoBehaviour
         EventManager.Instance.OnNexusCoreObtained -= OnNexusCoreObtained;
 
         EventManager.Instance.OnLevelStarted -= OnLevelStarted;
+        
     }
 
     public void PlayMusic(AudioClip audioClip, float volume)

@@ -12,6 +12,7 @@ public class LevelUIManager : MonoBehaviour
     [SerializeField] private Canvas mainCamCanvas;
     [SerializeField] private Canvas droneCamObjects;
     [SerializeField] private Canvas droneCamCanvas;
+    [SerializeField] private Canvas generalCanvas;
     [SerializeField] private RectTransform canvasRectTransform;
 
     [SerializeField] private TMP_Text objectiveInfoText;
@@ -29,7 +30,6 @@ public class LevelUIManager : MonoBehaviour
 
     [SerializeField] Camera droneCam;
     
-    [SerializeField] private Canvas generalCanvas;
     [SerializeField] private GameObject gamePausedPanel;
     [SerializeField] private GameObject levelStartedPanel;
     
@@ -64,7 +64,7 @@ public class LevelUIManager : MonoBehaviour
 
     private void Start()
     {
-        generalCanvas.enabled = false;
+        
         switch (LevelManager.Instance.GetGameDifficulty())
         {
             case GameDifficulty.EASY:
@@ -82,6 +82,8 @@ public class LevelUIManager : MonoBehaviour
         UpdateTimerDisplay();
         
         objectiveInfoText.text = "Objective: Locate the circuit breaker and activate the Nexus veins.";
+        
+        generalCanvas.enabled = false;
         droneCamCanvas.enabled = false;
         droneCamController = droneCam.GetComponent<DroneCameraController>();
         

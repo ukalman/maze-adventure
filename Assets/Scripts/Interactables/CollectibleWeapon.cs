@@ -63,7 +63,7 @@ public class CollectibleWeapon : MonoBehaviour
             {
                 isPlayerIn = true;
                 interactionText.SetActive(true);
-                if (weaponName == WeaponName.AK47 && !LevelManager.Instance.collectedAK47)
+                if (weaponName == WeaponName.AK47 && !LevelManager.Instance.CollectedAK47)
                 {
                     interactionText.GetComponent<TMP_Text>().text = "Press \"E\" to acquire the AK-47 rifle.";
                     canCollect = true;

@@ -43,7 +43,7 @@ public class CircuitBreaker : MonoBehaviour
         
         if (isPaused) return;
         
-        if (isPlayerIn && Input.GetKeyDown(KeyCode.E) && !LevelManager.Instance.lightsTurnedOn)
+        if (isPlayerIn && Input.GetKeyDown(KeyCode.E) && !LevelManager.Instance.VeinsActivated)
         {
             EventManager.Instance.InvokeOnLightsTurnedOn();
             interactionText.SetActive(false);
@@ -55,7 +55,7 @@ public class CircuitBreaker : MonoBehaviour
     {
         if (other.transform.root.CompareTag("Player"))
         {
-            if (!LevelManager.Instance.lightsTurnedOn && !isPlayerIn)
+            if (!LevelManager.Instance.VeinsActivated && !isPlayerIn)
             {
                 isPlayerIn = true;
                 interactionText.SetActive(true);
@@ -68,7 +68,7 @@ public class CircuitBreaker : MonoBehaviour
     {
         if (other.transform.root.CompareTag("Player"))
         {
-            if (!LevelManager.Instance.lightsTurnedOn && isPlayerIn)
+            if (!LevelManager.Instance.VeinsActivated && isPlayerIn)
             {
                 interactionText.GetComponent<TMP_Text>().text = "";
                 interactionText.SetActive(false);
@@ -81,13 +81,13 @@ public class CircuitBreaker : MonoBehaviour
     private void OnDroneCamActivated()
     {
         isPaused = true;
-        if (!LevelManager.Instance.lightsTurnedOn) LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
+        if (!LevelManager.Instance.VeinsActivated) LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
     }
 
     private void OnDroneCamDeactivated()
     {
         isPaused = false;
-        if (!LevelManager.Instance.lightsTurnedOn) LevelManager.Instance.levelUIManager.UnregisterTrackedObject(transform);
+        if (!LevelManager.Instance.VeinsActivated) LevelManager.Instance.levelUIManager.UnregisterTrackedObject(transform);
     }
 
     private void OnGamePaused()

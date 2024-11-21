@@ -45,14 +45,14 @@ public class EnemySpawner : MonoBehaviour
                 distFromSpawnPoint = 5;
                 break;
             case GameDifficulty.MODERATE:
-                maxZombieCount = 18;
-                zombieGroupCount = 6;
-                distFromSpawnPoint = 10;
+                maxZombieCount = 12;
+                zombieGroupCount = 4;
+                distFromSpawnPoint = 7;
                 break;
             case GameDifficulty.HARD:
-                maxZombieCount = 27;
-                zombieGroupCount = 9;
-                distFromSpawnPoint = 18;
+                maxZombieCount = 18;
+                zombieGroupCount = 6;
+                distFromSpawnPoint = 12;
                 break;
             case GameDifficulty.None:
                 Debug.LogError("[EnemySpawner] Game Difficulty: None");
@@ -71,10 +71,12 @@ public class EnemySpawner : MonoBehaviour
 
     private void OnNavMeshBaked()
     {
+        
         for (int i = 0; i < zombieGroupCount; i++)
         {
             SpawnZombieGroup(GetRandomSpawnPoint());
         }
+        
         
         EventManager.Instance.InvokeOnLevelInstantiated();
     }

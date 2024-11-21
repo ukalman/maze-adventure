@@ -18,8 +18,6 @@ public class EnemyController : MonoBehaviour
 
     public PlayerHealth playerHealth;
     
-    public NavMeshAgent enemyAgent;
-    
     #region EnemyStates
 
     public string State;
@@ -36,15 +34,17 @@ public class EnemyController : MonoBehaviour
     #endregion
     
     [HideInInspector] public Animator anim;
-
+    [HideInInspector] public EnemyAudio enemyAudio;
+    [HideInInspector] public NavMeshAgent enemyAgent;
+    
     private EnemyHealth health;
     public RagdollManager ragdollManager;
 
     [SerializeField] private Material transparentMat1, transparentMat2;
     [SerializeField] private GameObject minimapTile;
-    
-    public EnemyAudio enemyAudio;
 
+    public bool isAwayFromPlayer;
+    
     public bool isPaused;
 
     public GameObject zombieGroup;
@@ -81,6 +81,8 @@ public class EnemyController : MonoBehaviour
         
         if (isPaused) return;
         
+        Debug.Log("Distance to the player: " + Vector3.Distance(transform.position, GameManager.Instance.Player.transform.position));
+        
         isDead = health.isDead;
         CurrentState.UpdateState(this);
         if (isDead && !isDeadDoubleCheck)
@@ -88,6 +90,18 @@ public class EnemyController : MonoBehaviour
             StartCoroutine(OnDeath());
         }
         
+    }
+    
+    public void ActivateEnemyModules()
+    {
+        anim.enabled = true;
+        enemyAudio.enabled = true;
+    }
+
+    public void DeactivateEnemyModules()
+    {
+        anim.enabled = false;
+        enemyAudio.enabled = false;
     }
     
     public void SwitchState(EnemyBaseState stateToSwitch)
@@ -217,7 +231,7 @@ public class EnemyController : MonoBehaviour
         isPaused = true;
         if (anim != null) anim.speed = 0;
         if (enemyAgent != null) enemyAgent.isStopped = true;
-        if (LevelManager.Instance.lightsTurnedOn) LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
+        if (LevelManager.Instance.VeinsActivated) LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
     }
 
     private void OnDroneCamDeactivated()

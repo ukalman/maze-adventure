@@ -1,11 +1,15 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SceneManager : MonoBehaviour
 {
     public static SceneManager Instance { get; private set; }
 
+    [SerializeField] private Slider loadingSlider;
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -29,11 +33,7 @@ public class SceneManager : MonoBehaviour
     {
         EventManager.Instance.OnMazeExit -= OnMazeExit;
     }
-
-    /// <summary>
-    /// Load a scene by its name.
-    /// </summary>
-    /// <param name="sceneName">The name of the scene to load.</param>
+    
     public void LoadScene(string sceneName)
     {
         if (!string.IsNullOrEmpty(sceneName))
@@ -45,11 +45,7 @@ public class SceneManager : MonoBehaviour
             Debug.LogWarning("Scene name is null or empty!");
         }
     }
-
-    /// <summary>
-    /// Load a scene by its build index.
-    /// </summary>
-    /// <param name="sceneIndex">The build index of the scene to load.</param>
+    
     public void LoadScene(int sceneIndex)
     {
         if (sceneIndex >= 0 && sceneIndex < UnityEngine.SceneManagement.SceneManager.sceneCountInBuildSettings)
@@ -62,9 +58,20 @@ public class SceneManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Reload the current scene.
-    /// </summary>
+    
+    public IEnumerator LoadLevelAsync(int sceneIndex)
+    {
+        AsyncOperation loadOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneIndex);
+
+        while (!loadOperation.isDone)
+        {
+            float progressValue = Mathf.Clamp01(loadOperation.progress / 0.9f);
+            loadingSlider.value = progressValue;
+            yield return null;
+        }
+    }
+
+
     public void ReloadCurrentScene()
     {
         int currentSceneIndex = UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex;

@@ -7,6 +7,9 @@ public class DetectionStateManager : MonoBehaviour
 {
     [SerializeField] private float lookDistance = 20.0f, fov = 120.0f;
     [SerializeField] private Transform enemyEyes;
+    
+    [SerializeField] private float activateDistance = 30.0f;
+    
     private Transform playerHead;
     private PlayerHealth playerHealth;
     
@@ -48,7 +51,7 @@ public class DetectionStateManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        CheckIfPlayerInProximity();
     }
 
     private void FixedUpdate()
@@ -56,6 +59,8 @@ public class DetectionStateManager : MonoBehaviour
         if (!LevelManager.Instance.HasLevelStarted) return;
         
         if (isPaused) return;
+        
+        if (enemyController.isAwayFromPlayer) return;
         
         if (PlayerSeen() || playerHeardRecently)
         {
@@ -96,7 +101,32 @@ public class DetectionStateManager : MonoBehaviour
         
     }
 
-    public bool PlayerSeen()
+    private void CheckIfPlayerInProximity()
+    {
+        if (Vector3.Distance(enemyEyes.position, playerHead.position) > activateDistance)
+        {
+            if (!enemyController.isAwayFromPlayer)
+            {
+                enemyController.isAwayFromPlayer = true;
+                enemyController.DeactivateEnemyModules();
+            }
+        }
+
+        else
+        {
+            if (enemyController.isAwayFromPlayer)
+            {
+                enemyController.isAwayFromPlayer = false;
+                enemyController.ActivateEnemyModules();
+            }
+        }
+        
+        
+        
+        enemyController.isAwayFromPlayer = Vector3.Distance(enemyEyes.position, playerHead.position) > activateDistance;
+    }
+
+    private bool PlayerSeen()
     {
         if (playerHealth != null && playerHealth.isDead) return false;
         if (LevelManager.Instance.HasNexusCore) return true;
@@ -145,7 +175,6 @@ public class DetectionStateManager : MonoBehaviour
     {
         if (Vector3.Distance(transform.position, playerHead.position) <= hearingDistance)
         {
-            Debug.Log("Player heard by enemy!");
             playerHeardRecently = true; 
             playerHeardDuration = 1.0f; 
             playerSeenTimer = Mathf.Max(playerSeenTimer, minChaseDuration); 

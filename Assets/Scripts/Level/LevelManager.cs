@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class LevelManager : MonoBehaviour
 {
@@ -15,6 +16,11 @@ public class LevelManager : MonoBehaviour
 
     public List<EnemyController> activeCombatEnemies = new List<EnemyController>();
 
+    [Header("Post Processing")] 
+    [SerializeField] private GameObject nightVisionVolume;
+    [SerializeField] private GameObject veinsVolume;
+    [SerializeField] private GameObject nightVisionLight;
+    
     #region CameraSwitch
 
     private CameraSwitcher cameraSwitcher;
@@ -24,39 +30,45 @@ public class LevelManager : MonoBehaviour
 
     public bool LevelInstantiated;
     
-    public bool collectedAK47;
+    public bool CollectedAK47;
     
     public bool HasNexusCore { get; private set; }
     public bool DroneCamActive { get; private set; }
     
     public bool HasLevelStarted { get; private set; }
 
-    private int zombieKillCount;
+    public bool VeinsActivated;
 
-    public bool lightsTurnedOn;
+    private int zombieKillCount;
 
     private bool isPaused;
 
     public bool readyButtonPressed;
     
+    [Header(("Cameras"))]
     [SerializeField] private Camera mainCam, droneCam, minimapCam;
     private void Awake()
     {
         SetGameDifficulty(DataManager.Instance.difficulty);
         //SetGameDifficulty(GameDifficulty.EASY);
+        
         if (Instance == null)
         {
             Instance = this;
         }
         
-        AudioManager.Instance.OnSceneInitialized();
+        //cameraSwitcher = new CameraSwitcher(mainCam, droneCam, minimapCam);
         
-        cameraSwitcher = new CameraSwitcher(mainCam, droneCam, minimapCam);
     }
 
     private void Start()
     {
+        cameraSwitcher = new CameraSwitcher(mainCam, droneCam, minimapCam);
         HasNexusCore = false;
+        nightVisionVolume.SetActive(false);
+        veinsVolume.SetActive(false);
+        nightVisionLight.SetActive(false);
+        
         EventManager.Instance.OnLevelInstantiated += OnLevelInstantiated;
         EventManager.Instance.OnLevelStarted += OnLevelStarted;
         
@@ -107,6 +119,7 @@ public class LevelManager : MonoBehaviour
         */
         
         CheckForCameraSwitch();
+        CheckForNightVision();
     }
 
     public void SetGameDifficulty(GameDifficulty difficulty)
@@ -136,9 +149,18 @@ public class LevelManager : MonoBehaviour
             {
                 if (!HasLevelStarted) EventManager.Instance.InvokeOnLevelStarted();
                 EventManager.Instance.InvokeOnDroneCamDeactivated();
-                
                 cameraSwitcher.ActivateMainCam();
             }
+        }
+    }
+
+    private void CheckForNightVision()
+    {
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            if (DroneCamActive || VeinsActivated) return;
+            nightVisionVolume.SetActive(!nightVisionVolume.activeSelf);
+            nightVisionLight.SetActive(!nightVisionLight.activeSelf);
         }
     }
 
@@ -161,19 +183,22 @@ public class LevelManager : MonoBehaviour
 
     private void OnDroneCamActivated()
     {
-        
+        DroneCamActive = true;
     }
 
     private void OnDroneCamDeactivated()
     {
-        
+        DroneCamActive = false;
     }
 
     private void OnLightsTurnedOn()
     {
-        lightsTurnedOn = true;
+        VeinsActivated = true;
         Color ambientColor = new Color(48.0f / 255.0f, 55.0f / 255.0f, 170.0f / 255.0f);
         RenderSettings.ambientLight = ambientColor;
+        nightVisionVolume.SetActive(false);
+        nightVisionLight.SetActive(false);
+        veinsVolume.SetActive(true);
     }
 
     private void OnNexusCoreObtained()
