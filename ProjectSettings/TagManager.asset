@@ -13,6 +13,7 @@ TagManager:
   - NexusCore
   - Entrance
   - Exit
+  - Wall
   layers:
   - Default
   - TransparentFX

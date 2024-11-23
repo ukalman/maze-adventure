@@ -455,6 +455,7 @@ GameObject:
   - component: {fileID: 5250800687061892870}
   - component: {fileID: 2913876046368207133}
   - component: {fileID: 6598397138829846535}
+  - component: {fileID: 6736605448786885342}
   - component: {fileID: 1686746123148925669}
   - component: {fileID: 4857027999991362387}
   - component: {fileID: 3602176888933334755}
@@ -635,6 +636,23 @@ MonoBehaviour:
   - {fileID: 664816696768289145}
   - {fileID: 4599763116184792081}
   currentWeaponIndex: 0
+--- !u!114 &6736605448786885342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1018050611003096882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4a1481da2f4344a1a41991442cc439d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerCamera: {fileID: 0}
+  maxSprayDistance: 5
+  sprayPaintPrefab: {fileID: 2122978907089621575, guid: 1144e6e53f044e140b3c3b0b9d8f7437,
+    type: 3}
+  maxSprays: 5
 --- !u!114 &1686746123148925669
 MonoBehaviour:
   m_ObjectHideFlags: 0

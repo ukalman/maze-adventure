@@ -27,6 +27,8 @@ public class AudioManager : MonoBehaviour
 
     [SerializeField] private AudioClip flashlightSound;
 
+    [SerializeField] private AudioClip sprayPaintSound;
+
     [SerializeField] private AudioClip activateDroneCamSound;
     [SerializeField] private AudioClip deactivateDroneCamSound;
 
@@ -191,6 +193,11 @@ public class AudioManager : MonoBehaviour
     {
         PlayAmbience(droneAmbienceSound, ambienceVolume);
         isDroneAmbiencePlaying = true;
+    }
+
+    public void OnSprayPaintUsed()
+    {
+        PlayInteractionSound(sprayPaintSound, globalVolume);
     }
     
 }

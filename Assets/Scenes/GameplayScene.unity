@@ -490,14 +490,16 @@ MonoBehaviour:
     TOGGLE NIGHT
     VISION: X
 
+    USE SPRAY PAINT: Q
+
     INTERACT: E
 
     DRONE CAMERA: C
 
-    MOVE DRONE: W, A, S, D
+    MOVE
+    DRONE: W, A, S, D
 
-    ZOOM:
-    SCROLL WHEEL'
+    ZOOM: SCROLL WHEEL'
 --- !u!222 &44297350
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -16848,6 +16850,21 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6736605448786885342, guid: 764bc438bec1a1346b1e60e6885c83c9,
+        type: 3}
+      propertyPath: decalOffset
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6736605448786885342, guid: 764bc438bec1a1346b1e60e6885c83c9,
+        type: 3}
+      propertyPath: playerCamera
+      value: 
+      objectReference: {fileID: 330585545}
+    - target: {fileID: 6736605448786885342, guid: 764bc438bec1a1346b1e60e6885c83c9,
+        type: 3}
+      propertyPath: maxSprayDistance
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
