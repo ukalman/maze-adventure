@@ -45,7 +45,6 @@ public class PlayerHealth : MonoBehaviour
     private void PlayerDeath()
     {
         isDead = true;
-        Debug.Log("PLAYER DIED!");
         transform.GetComponent<Animator>().enabled = false;
         Destroy(transform.GetComponent<MovementStateManager>());
         Destroy(transform.GetComponent<ActionStateManager>());

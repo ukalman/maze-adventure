@@ -27,7 +27,7 @@ public class AmmoCase : MonoBehaviour
 
     void Start()
     {
-        interactionText = GameManager.Instance.interactionText;
+        interactionText = LevelManager.Instance.levelUIManager.interactionText;
         ammoAmount = Random.Range(25, 50);
     }
 
@@ -100,7 +100,6 @@ public class AmmoCase : MonoBehaviour
     
     private void OnDroneCamActivated()
     {
-        Debug.Log("An ammo case is activated!");
         isPaused = true;
         LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
     }

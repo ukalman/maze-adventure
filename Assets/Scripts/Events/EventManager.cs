@@ -19,6 +19,8 @@ public class EventManager : MonoBehaviour
     }
 
     public event Action<GameDifficulty> OnDifficultySelected;
+
+    public event Action<GameDifficulty> OnLevelCompleted;
     
     public event Action OnFirstAidUsed;
     public event Action OnWeaponChanged;
@@ -65,6 +67,42 @@ public class EventManager : MonoBehaviour
 
     public event Action OnLevelStarted;
 
+    public void InvokeOnDifficultySelected(GameDifficulty difficulty)
+    {
+        OnDifficultySelected?.Invoke(difficulty);
+    }
+
+    public void InvokeOnLevelCompleted(GameDifficulty difficulty)
+    {
+        OnLevelCompleted?.Invoke(difficulty);
+    }
+
+    public void OnEasyDifficultySelected()
+    {
+        InvokeOnDifficultySelected(GameDifficulty.EASY);
+    }
+    
+    public void OnModerateDifficultySelected()
+    {
+        InvokeOnDifficultySelected(GameDifficulty.MODERATE);
+    }
+    
+    public void OnHardDifficultySelected()
+    {
+        InvokeOnDifficultySelected(GameDifficulty.HARD);
+    }
+    
+    public void InvokeOnLevelInstantiated()
+    {
+        OnLevelInstantiated?.Invoke();
+    }
+
+    public void InvokeOnLevelStarted()
+    {
+        OnLevelStarted?.Invoke();
+    }
+
+   
     
     public void InvokeOnFirstAidUsed()
     {
@@ -171,35 +209,7 @@ public class EventManager : MonoBehaviour
         OnNexusCoreObtained?.Invoke();
     }
 
-    public void InvokeOnLevelInstantiated()
-    {
-        OnLevelInstantiated?.Invoke();
-    }
-
-    public void InvokeOnLevelStarted()
-    {
-        OnLevelStarted?.Invoke();
-    }
-
-    public void InvokeOnDifficultySelected(GameDifficulty difficulty)
-    {
-        OnDifficultySelected?.Invoke(difficulty);
-    }
-
-    public void OnEasyDifficultySelected()
-    {
-        InvokeOnDifficultySelected(GameDifficulty.EASY);
-    }
     
-    public void OnModerateDifficultySelected()
-    {
-        InvokeOnDifficultySelected(GameDifficulty.MODERATE);
-    }
-    
-    public void OnHardDifficultySelected()
-    {
-        InvokeOnDifficultySelected(GameDifficulty.HARD);
-    }
     
     
 }

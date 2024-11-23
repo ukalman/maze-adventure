@@ -83,7 +83,6 @@ public class SceneManager : MonoBehaviour
     /// </summary>
     public void QuitGame()
     {
-        Debug.Log("Quitting the game...");
         Application.Quit();
     }
 

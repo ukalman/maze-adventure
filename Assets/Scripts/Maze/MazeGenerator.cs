@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 public class MazeGenerator : MonoBehaviour
 {
-    /* If difficulty:
+    /* If selectedDifficulty:
      * EASY -> 10,10
      * MODERATE -> 15,15
      * HARD -> 22,22

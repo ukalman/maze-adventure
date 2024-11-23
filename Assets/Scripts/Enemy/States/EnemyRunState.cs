@@ -67,7 +67,6 @@ public class EnemyRunState : EnemyBaseState
 
         if (!controller.playerSeen || controller.playerHealth.isDead)
         {
-            Debug.Log("yes, this is the playerSeen : " + controller.playerSeen);
             ExitState(controller,controller.Idle);
         }
 

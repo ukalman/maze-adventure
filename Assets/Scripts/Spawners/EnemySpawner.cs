@@ -1,16 +1,12 @@
-
-using System;
 using System.Collections.Generic;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 // Attached to Maze Game Object
 public class EnemySpawner : MonoBehaviour
 {
 
-    /* If difficulty:
+    /* If selectedDifficulty:
      * EASY -> 5 zombie groups instantiated at first, 10 dist from spawn point
      * MODERATE -> 8 zombie groups instantiated at first, 18 dist from spawn point
      * HARD -> 12 zombie groups instantiated at first, 25 dist from spawn point
@@ -147,10 +143,6 @@ public class EnemySpawner : MonoBehaviour
                 mazeGenerator.GetMazeDepth() -1, distFromSpawnPoint);
             spawnPoint = mazeCell.transform.position;
             //spawnPoint = Extensions.GetRandomPointOnNavMesh(bottomRightCell.transform.position, distFromSpawnPoint);
-        }
-        else
-        {
-            Debug.Log("Cell value: " + cell);
         }
         
         return spawnPoint;

@@ -29,10 +29,6 @@ public class PlayerSprintbar : MonoBehaviour
 
     public void SetMaxValue(float value)
     {
-        if (slider == null)
-        {
-            Debug.Log("it is null bro sprintbar");
-        }
         slider.maxValue = value;
         slider.value = value;
     }

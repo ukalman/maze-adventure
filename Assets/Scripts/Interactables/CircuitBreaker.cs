@@ -25,7 +25,7 @@ public class CircuitBreaker : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        interactionText = GameManager.Instance.interactionText;
+        interactionText = LevelManager.Instance.levelUIManager.interactionText;
         EventManager.Instance.OnLightsTurnedOn += OnLightsTurnedOn;
     }
 

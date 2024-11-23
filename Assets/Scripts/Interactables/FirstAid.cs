@@ -25,7 +25,7 @@ public class FirstAid : MonoBehaviour
 
     private void Start()
     {
-        interactionText = GameManager.Instance.interactionText;
+        interactionText = LevelManager.Instance.levelUIManager.interactionText;
         playerHealth = GameManager.Instance.Player.GetComponent<PlayerHealth>();
     }
 

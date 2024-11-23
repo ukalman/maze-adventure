@@ -1,18 +1,16 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MainMenuManager : MonoBehaviour
 {
-
     [SerializeField] private Camera guiCam;
-    
+
     [SerializeField] private GameObject mainMenuContainer;
     [SerializeField] private GameObject background;
     [SerializeField] private GameObject sceneModels;
     [SerializeField] private GameObject loadingScreen;
-    
+
     [SerializeField] private AudioSource musicAudioSource;
     [SerializeField] private AudioSource sfxAudioSource;
 
@@ -23,11 +21,37 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private AudioClip readyButtonSound;
 
     [SerializeField] private AudioClip futuristicWhooshSound;
-    
+
+    [SerializeField] private Button easyButton;
+    [SerializeField] private Button moderateButton;
+    [SerializeField] private Button hardButton;
+
+    [SerializeField] private Text moderateText;
+    [SerializeField] private Text hardText;
+
     void Start()
     {
         musicAudioSource.clip = mainMenuAmbience_1;
         musicAudioSource.Play();
+        
+        UpdateButtonInteractability();
+    }
+
+    private void UpdateButtonInteractability()
+    {
+        easyButton.interactable = true;
+        
+        moderateButton.interactable = DataManager.Instance.isEasyCompleted;
+        Color moderateTextColor = moderateText.color;
+        float alphaModerate = DataManager.Instance.isEasyCompleted ? 1.0f : 0.05f;
+        moderateTextColor.a = alphaModerate;
+        moderateText.color = moderateTextColor;
+        
+        hardButton.interactable = DataManager.Instance.isModerateCompleted;
+        Color hardTextColor = hardText.color;
+        float alphaHard = DataManager.Instance.isModerateCompleted ? 1.0f : 0.05f;
+        hardTextColor.a = alphaHard;
+        hardText.color = hardTextColor;
     }
 
     public void OnLaunchClicked()
@@ -41,7 +65,6 @@ public class MainMenuManager : MonoBehaviour
     {
         yield return StartCoroutine(CameraZoomCoroutine());
         StartCoroutine(SceneManager.Instance.LoadLevelAsync(1));
-
     }
 
     private IEnumerator CameraZoomCoroutine()
@@ -59,12 +82,12 @@ public class MainMenuManager : MonoBehaviour
             if (guiCam.fieldOfView >= 0.5f) guiCam.fieldOfView -= 0.4f;
             yield return null;
         }
-        
+
         background.SetActive(false);
         Destroy(sceneModels);
         loadingScreen.SetActive(true);
     }
-    
+
     public void PlayButtonSound()
     {
         sfxAudioSource.PlayOneShot(buttonClickSound);

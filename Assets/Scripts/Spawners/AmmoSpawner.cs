@@ -82,18 +82,15 @@ public class AmmoSpawner : MonoBehaviour
     
     private void OnExtraAmmoDepleted(AmmoType ammoType)
     {
-        Debug.Log("AMMO DEPLETED;");
         // Instantiate 1-2 ammo cases somewhere randomly
         if (ammoType == AmmoType.M4_556 && M4AmmoCaseCount == 0)
         {
-            Debug.Log("YES, IT'S M4");
             int randomQuantity = Random.Range(1, 3);
             M4AmmoCaseCount += randomQuantity;
             SpawnM4AmmoCase(GetRandomSpawnMazeCell());
         }
         else if (ammoType == AmmoType.AK47_762 && AK47AmmoCaseCount == 0)
         {
-            Debug.Log("NO, IT'S AK47");
             int randomQuantity = Random.Range(1, 3);
             AK47AmmoCaseCount += randomQuantity;
             SpawnAK47AmmoCase(GetRandomSpawnMazeCell());

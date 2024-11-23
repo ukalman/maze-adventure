@@ -1,3 +1,12 @@
+public enum GameState : byte
+{
+    Initialization,
+    Gameplay,
+    Paused,
+    LevelFailed,
+    LevelCompleted
+}
+
 public enum GameDifficulty : byte
 {
     None,

@@ -1,8 +1,7 @@
 
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
+
 
 public class LevelManager : MonoBehaviour
 {
@@ -49,7 +48,8 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private Camera mainCam, droneCam, minimapCam;
     private void Awake()
     {
-        SetGameDifficulty(DataManager.Instance.difficulty);
+        if (DataManager.Instance != null) SetGameDifficulty(DataManager.Instance.selectedDifficulty);
+        else SetGameDifficulty(GameDifficulty.EASY);
         //SetGameDifficulty(GameDifficulty.EASY);
         
         if (Instance == null)
@@ -118,8 +118,11 @@ public class LevelManager : MonoBehaviour
         }
         */
         
-        CheckForCameraSwitch();
-        CheckForNightVision();
+        HandlePauseState();
+        
+        if (isPaused) return;
+        HandleCameraSwitch();
+        HandleNightVision();
     }
 
     public void SetGameDifficulty(GameDifficulty difficulty)
@@ -132,7 +135,24 @@ public class LevelManager : MonoBehaviour
         return Difficulty;
     }
 
-    private void CheckForCameraSwitch()
+    private void HandlePauseState()
+    {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            if (isPaused)
+            {
+                Time.timeScale = 1f;
+                EventManager.Instance.InvokeOnGameContinued();
+            }
+            else
+            {
+                Time.timeScale = 0f; 
+                EventManager.Instance.InvokeOnGamePaused();
+            }
+        }
+    }
+    
+    private void HandleCameraSwitch()
     {
         if (Input.GetKeyDown(KeyCode.C) && !HasNexusCore && readyButtonPressed)
         {
@@ -154,7 +174,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void CheckForNightVision()
+    private void HandleNightVision()
     {
         if (Input.GetKeyDown(KeyCode.X))
         {

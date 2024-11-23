@@ -142,8 +142,6 @@ public class EnemyAudio : MonoBehaviour
             {
                 float occlusionFactor = Mathf.InverseLerp(minOcclusionDistance, maxOcclusionDistance, distToPlayer);
                 targetFrequency = Mathf.Lerp(clearFrequency, occludedFrequency, occlusionFactor);
-                Debug.Log("oh no man, this is the hit transform: " + hit.transform.name);
-                //lowPassFilter.cutoffFrequency = occludedFrequency;
             }
             
         }

@@ -22,7 +22,7 @@ public class MazeExit : MonoBehaviour
 
     void Start()
     {
-        interactionText = GameManager.Instance.interactionText;
+        interactionText = LevelManager.Instance.levelUIManager.interactionText;
     }
 
     private void OnDestroy()

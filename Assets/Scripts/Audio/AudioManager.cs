@@ -45,6 +45,7 @@ public class AudioManager : MonoBehaviour
     
     private void Awake()
     {
+        /*
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -53,16 +54,16 @@ public class AudioManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject); 
+        */
+        if (Instance == null)
+        {
+            Instance = this;
+        }
     }
 
     private void Start()
     {
         musicVolume = 1.0f;
-        //PlayMusic(horrorAmbienceMusic, musicVolume);
-        
-        //PlayAmbience(droneAmbienceSound, ambienceVolume);
-        //isDroneAmbiencePlaying = true;
-        
         OnSceneInitialized();
         
         EventManager.Instance.OnAmmoCollected += OnAmmoCollected;

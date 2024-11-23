@@ -81,8 +81,6 @@ public class EnemyController : MonoBehaviour
         
         if (isPaused) return;
         
-        Debug.Log("Distance to the player: " + Vector3.Distance(transform.position, GameManager.Instance.Player.transform.position));
-        
         isDead = health.isDead;
         CurrentState.UpdateState(this);
         if (isDead && !isDeadDoubleCheck)

@@ -9,15 +9,19 @@ using UnityEngine.Serialization;
 public class LevelUIManager : MonoBehaviour
 {
     
+    [Header("Canvas")]
     [SerializeField] private Canvas mainCamCanvas;
     [SerializeField] private Canvas droneCamObjects;
     [SerializeField] private Canvas droneCamCanvas;
     [SerializeField] private Canvas generalCanvas;
     [SerializeField] private RectTransform canvasRectTransform;
 
+    [Header("Text")] 
+    public GameObject interactionText;
     [SerializeField] private TMP_Text objectiveInfoText;
     [SerializeField] private TMP_Text scanningText;
     
+    [Header("Prefabs")]
     [SerializeField] private GameObject playerIconPrefab;
     [SerializeField] private GameObject zombieIconPrefab;
     [SerializeField] private GameObject ak47IconPrefab;
@@ -28,8 +32,10 @@ public class LevelUIManager : MonoBehaviour
     [SerializeField] private GameObject entranceIconPrefab;
     [SerializeField] private GameObject exitIconPrefab;
 
+    [Header("Drone Cam")]
     [SerializeField] Camera droneCam;
     
+    [Header("General Panels")]
     [SerializeField] private GameObject gamePausedPanel;
     [SerializeField] private GameObject levelStartedPanel;
     
@@ -89,6 +95,9 @@ public class LevelUIManager : MonoBehaviour
         
         mainCamCanvas.enabled = false;
         droneCamCanvas.enabled = true;
+        
+        levelStartedPanel.SetActive(false);
+        gamePausedPanel.SetActive(false);
 
         isScanning = true;
         StartCoroutine(ScanningLoop());
@@ -161,7 +170,6 @@ public class LevelUIManager : MonoBehaviour
     
     private void TimerEnded()
     {
-        Debug.Log("Timer has ended!");
         // game over
     }
 
@@ -240,18 +248,8 @@ public class LevelUIManager : MonoBehaviour
                 RectTransform iconRect = newIcon.GetComponent<RectTransform>();
                 trackedIcons[trackedObject] = iconRect;
             }
-            else
-            {
-                Debug.Log("nah, tracked object: " + trackedObject.name);
-            }
-            //GameObject newIcon = Instantiate(iconPrefab, droneCamObjects.transform);
-            //RectTransform iconRect = newIcon.GetComponent<RectTransform>();
-            //trackedIcons[trackedObject] = iconRect;
         }
-        else
-        {
-            Debug.Log("Object is contained!");
-        }
+       
     }
     
     public void UnregisterTrackedObject(Transform trackedObject)
@@ -304,13 +302,7 @@ public class LevelUIManager : MonoBehaviour
             }
         }
     }
-
-    public void DestroyDroneCamIcons()
-    {
-        //trackedIcons.Clear();
-    }
-
-
+    
     private void OnDroneCamActivated()
     {
         mainCamCanvas.enabled = false;
@@ -333,16 +325,22 @@ public class LevelUIManager : MonoBehaviour
 
     private void OnGamePaused()
     {
-        StopGame();
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         isPaused = true;
         StopTimer();
+        generalCanvas.enabled = true;
+        gamePausedPanel.SetActive(true);
     }
 
     private void OnGameContinued()
     {
-        ContinueGame();
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         isPaused = false;
         StartTimer();
+        gamePausedPanel.SetActive(false);
+        generalCanvas.enabled = false;
     }
 
     private void OnLightsTurnedOn()
@@ -356,19 +354,6 @@ public class LevelUIManager : MonoBehaviour
         objectiveInfoText.text = "ESCAPE THE LAB!";
         timerText.gameObject.SetActive(true);
         StartCoroutine(TimerCountdown());
-    }
-
-    public void StopGame()
-    {
-        generalCanvas.enabled = true;
-        gamePausedPanel.SetActive(true);
-    }
-    
-    public void ContinueGame()
-    {
-        EventManager.Instance.InvokeOnGameContinued();
-        generalCanvas.enabled = false;
-        gamePausedPanel.SetActive(false);
     }
 
     public void OnScanningCompleted()
@@ -385,6 +370,4 @@ public class LevelUIManager : MonoBehaviour
         generalCanvas.enabled = false;
         levelStartedPanel.SetActive(false);
     }
-    
-
 }

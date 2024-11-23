@@ -39,10 +39,6 @@ public class PlayerWeaponInfo : MonoBehaviour
             
             
         }
-        else
-        {
-            Debug.Log("current weapon is null.");
-        }
         
         UpdateAmmoText();
         
