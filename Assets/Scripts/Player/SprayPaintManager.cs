@@ -1,16 +1,15 @@
-using System;
 using System.Collections;
 using UnityEngine;
 
 public class SprayPaintManager : MonoBehaviour
 {
     [SerializeField] private Camera playerCamera; 
-    [SerializeField] private float maxSprayDistance = 5.0f; 
+    [SerializeField] private float maxSprayDistance = 3.0f; 
     [SerializeField] private GameObject sprayPaintPrefab;
     
     [SerializeField] private int maxSprays = 5;
 
-    [SerializeField] private float decalOffset = 0.01f;
+    [SerializeField] private float decalOffset = -0.6f;
     
     private int currentSprays = 0;
     
@@ -19,6 +18,23 @@ public class SprayPaintManager : MonoBehaviour
     private bool currentlyPainting;
     private void Start()
     {
+        switch (LevelManager.Instance.GetGameDifficulty())
+        {
+            case GameDifficulty.EASY:
+                maxSprays = 5;
+                break;
+            
+            case GameDifficulty.MODERATE:
+                maxSprays = 3;
+                break;
+            
+            case GameDifficulty.HARD:
+                maxSprays = 2;
+                break;
+        }
+        
+        LevelManager.Instance.levelUIManager.UpdateSprayPaintUsesText(maxSprays - currentSprays);
+        
         EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
         EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
         EventManager.Instance.OnGamePaused += OnGamePaused;
@@ -62,6 +78,7 @@ public class SprayPaintManager : MonoBehaviour
                     yield return new WaitForSeconds(1.0f);
                     PlaceSprayMark(hit.point, hit.normal);
                     currentSprays++; 
+                    LevelManager.Instance.levelUIManager.UpdateSprayPaintUsesText(maxSprays - currentSprays);
                 }
             }
         }

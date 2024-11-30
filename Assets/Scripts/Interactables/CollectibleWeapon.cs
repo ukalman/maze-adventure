@@ -65,7 +65,7 @@ public class CollectibleWeapon : MonoBehaviour
                 interactionText.SetActive(true);
                 if (weaponName == WeaponName.AK47 && !LevelManager.Instance.CollectedAK47)
                 {
-                    interactionText.GetComponent<TMP_Text>().text = "Press \"E\" to acquire the AK-47 rifle.";
+                    interactionText.GetComponent<TMP_Text>().text = "PRESS \"E\" TO ACQUIRE THE AK-47 RIFLE.";
                     canCollect = true;
                 }
             }

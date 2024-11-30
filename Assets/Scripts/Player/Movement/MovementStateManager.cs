@@ -70,9 +70,12 @@ public class MovementStateManager : MonoBehaviour
     public bool isFlashlightOn;
     
     private bool isPaused;
+
+    [SerializeField] private GameObject arrowIndicator;
     
     void Start()
     {
+        arrowIndicator.SetActive(false);
         anim = GetComponent<Animator>();
         controller = GetComponent<CharacterController>();
         currentSprintTime = maxSprintTime;
@@ -86,6 +89,8 @@ public class MovementStateManager : MonoBehaviour
         
         EventManager.Instance.OnFlashlightTurnedOn += OnFlashlightTurnedOn;
         EventManager.Instance.OnFlashlightTurnedOff += OnFlashlightTurnedOff;
+
+        EventManager.Instance.OnMazeExit += OnMazeExit;
     }
 
     private void OnDestroy()
@@ -97,6 +102,8 @@ public class MovementStateManager : MonoBehaviour
         
         EventManager.Instance.OnFlashlightTurnedOn -= OnFlashlightTurnedOn;
         EventManager.Instance.OnFlashlightTurnedOff -= OnFlashlightTurnedOff;
+        
+        EventManager.Instance.OnMazeExit -= OnMazeExit;
     }
 
     void Update()
@@ -269,15 +276,15 @@ public class MovementStateManager : MonoBehaviour
     {
         if (CurrentState == Walk)
         {
-            AudioManager.Instance.OnSecondFootstep(0.2f);
+            AudioManager.Instance.OnSecondFootstep(0.1f);
         }
         if (CurrentState == Run)
         {
-            AudioManager.Instance.OnSecondFootstep(0.3f);
+            AudioManager.Instance.OnSecondFootstep(0.2f);
         }
         if (CurrentState == Crouch)
         {
-            AudioManager.Instance.OnSecondFootstep(0.05f);
+            AudioManager.Instance.OnSecondFootstep(0.01f);
         }
     }
     
@@ -285,6 +292,7 @@ public class MovementStateManager : MonoBehaviour
     {
         isPaused = true;
         anim.speed = 0;
+        arrowIndicator.SetActive(true);
         LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
     }
 
@@ -292,6 +300,7 @@ public class MovementStateManager : MonoBehaviour
     {
         isPaused = false;
         anim.speed = 1;
+        arrowIndicator.SetActive(false);
         LevelManager.Instance.levelUIManager.UnregisterTrackedObject(transform);
     }
 
@@ -315,6 +324,15 @@ public class MovementStateManager : MonoBehaviour
     private void OnFlashlightTurnedOff()
     {
         isFlashlightOn = false;
+    }
+
+    private void OnMazeExit()
+    {
+        transform.GetComponent<ActionStateManager>().enabled = false;
+        transform.GetComponent<AimStateManager>().enabled = false;
+        transform.GetComponent<WeaponClassManager>().enabled = false;
+        transform.GetComponent<CharacterController>().enabled = false;
+        enabled = false;
     }
 
 }

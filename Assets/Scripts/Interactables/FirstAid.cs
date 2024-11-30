@@ -66,7 +66,7 @@ public class FirstAid : MonoBehaviour
                 if (playerHealth.CurrentHealth < 100.0f)
                 {
                     interactionText.SetActive(true);
-                    interactionText.GetComponent<TMP_Text>().text = "Press \"E\" to use the first aid kit.";
+                    interactionText.GetComponent<TMP_Text>().text = "PRESS \"E\" TO USE THE FIRST AID KIT.";
                 }
             }
         }

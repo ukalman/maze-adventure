@@ -9,9 +9,12 @@ public class MazeExit : MonoBehaviour
     private GameObject interactionText;
     private bool isPlayerIn;
     private bool canExit;
+    private bool exited;
 
     private bool isPaused;
 
+    [SerializeField] private Animator anim;
+    
     private void Awake()
     {
         EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
@@ -39,12 +42,14 @@ public class MazeExit : MonoBehaviour
         
         if (isPaused) return;
         
-        if (isPlayerIn && canExit)
+        if (isPlayerIn && canExit &&!exited)
         {
             if (Input.GetKeyDown(KeyCode.E))
             {
                 interactionText.GetComponent<TMP_Text>().text = "";
                 interactionText.SetActive(false);
+                exited = true;
+                anim.SetTrigger("DoorExit");
                 EventManager.Instance.InvokeOnMazeExit();
             }
         }
@@ -60,12 +65,12 @@ public class MazeExit : MonoBehaviour
                 interactionText.SetActive(true);
                 if (LevelManager.Instance.HasNexusCore)
                 {
-                    interactionText.GetComponent<TMP_Text>().text = "Press \"E\" to exit the Nexus Lab.";
+                    interactionText.GetComponent<TMP_Text>().text = "PRESS \"E\" TO EXIT THE NEXUS LAB.";
                     canExit = true;
                 }
                 else
                 {
-                    interactionText.GetComponent<TMP_Text>().text = "You cannot exit before retrieving the Nexus core!";
+                    interactionText.GetComponent<TMP_Text>().text = "YOU CANNOT EXIT BEFORE RETRIEVING THE NEXUS CORE!";
                     canExit = false;
                 }
             }

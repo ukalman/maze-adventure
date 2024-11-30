@@ -1,17 +1,12 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
 
-// Game Manager has it
 public class DamageEffect : MonoBehaviour
 {
     private PlayerHealth playerHealth;
-    
-    public Volume volume;
-    private Vignette vignette;
-    private ColorAdjustments colorAdjustments;
+
+    [SerializeField] private Material damageEffectMaterial; // Reference to the custom shader material
     private Coroutine damageEffectCoroutine;
 
     private bool isPaused;
@@ -23,13 +18,13 @@ public class DamageEffect : MonoBehaviour
     {
         EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
         EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
+
         playerHealth = GameManager.Instance.Player.GetComponent<PlayerHealth>();
-        
-        if (volume.profile.TryGet(out vignette) && volume.profile.TryGet(out colorAdjustments))
+
+        // Ensure the damage effect material starts with zero intensity
+        if (damageEffectMaterial != null)
         {
-            vignette.intensity.value = 0.0f;
-            vignette.color.value = Color.red;
-            colorAdjustments.postExposure.value = 0.0f;
+            damageEffectMaterial.SetFloat("_Intensity", 0f);
         }
     }
 
@@ -53,12 +48,12 @@ public class DamageEffect : MonoBehaviour
     {
         isDamageEffectActive = true; // Flag the damage effect as active
 
-        float flashIntensity = 0.5f; // Constant flash intensity
+        float flashIntensity = 1.0f; // Maximum flash intensity
         float duration = 0.5f;
         float fadeOutTime = 1.0f;
 
-        // Apply red flash
-        vignette.intensity.value = flashIntensity;
+        // Apply red flash by setting intensity
+        damageEffectMaterial.SetFloat("_Intensity", flashIntensity);
 
         // Wait for the duration, respecting pause state
         float elapsedDuration = 0f;
@@ -88,13 +83,14 @@ public class DamageEffect : MonoBehaviour
                 else
                 {
                     elapsedFadeOut += Time.deltaTime;
-                    vignette.intensity.value = Mathf.Lerp(flashIntensity, 0f, elapsedFadeOut / fadeOutTime);
+                    float intensity = Mathf.Lerp(flashIntensity, 0f, elapsedFadeOut / fadeOutTime);
+                    damageEffectMaterial.SetFloat("_Intensity", intensity);
                     yield return null;
                 }
             }
 
-            // Reset vignette intensity after fading out
-            vignette.intensity.value = 0f;
+            // Reset intensity after fading out
+            damageEffectMaterial.SetFloat("_Intensity", 0f);
         }
 
         isDamageEffectActive = false; // Damage effect has ended
@@ -104,11 +100,11 @@ public class DamageEffect : MonoBehaviour
     void Update()
     {
         if (!LevelManager.Instance.LevelInstantiated) return;
-        
+
         if (isPaused) return;
-        
-        UpdateHealthPercentage(playerHealth.CurrentHealth / 100.0f); // change the magic number later
-        
+
+        UpdateHealthPercentage(playerHealth.CurrentHealth / 100.0f); // Adjust for actual health scaling
+
         // Check for low health warning, but only if the damage effect is not active
         if (!isDamageEffectActive)
         {
@@ -127,7 +123,6 @@ public class DamageEffect : MonoBehaviour
                 }
             }
         }
-        
     }
 
     public void UpdateHealthPercentage(float healthPercentage)
@@ -138,8 +133,8 @@ public class DamageEffect : MonoBehaviour
     private void ActivateLowHealthWarning()
     {
         isLowHealthWarningActive = true;
-        vignette.intensity.value = 0.5f; // Constant intensity for low health warning
-        colorAdjustments.postExposure.value = 0.5f; // Slight exposure boost for dramatic effect
+        damageEffectMaterial.SetFloat("_Intensity", 0.5f); // Constant intensity for low health warning
+        damageEffectMaterial.SetColor("_DamageColor", Color.red); // Ensure the red tint is active
     }
 
     private void DeactivateLowHealthWarning()
@@ -149,8 +144,7 @@ public class DamageEffect : MonoBehaviour
         // Reset values only if the damage effect is not active
         if (!isDamageEffectActive)
         {
-            vignette.intensity.value = 0f;
-            colorAdjustments.postExposure.value = 0f;
+            damageEffectMaterial.SetFloat("_Intensity", 0f);
         }
     }
 

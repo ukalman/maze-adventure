@@ -83,22 +83,22 @@ public class MazeGenerator : MonoBehaviour
                 mazeWidth = 10;
                 mazeDepth = 10;
                 circuitBreakerCount = 1;
-                distFromSpawnOrigin = 5;
+                distFromSpawnOrigin = 1;
                 waitingTime = 0.05f;
                 break;
             case GameDifficulty.MODERATE:
                 mazeWidth = 13;
                 mazeDepth = 13;
                 circuitBreakerCount = 2;
-                distFromSpawnOrigin = 8;
-                waitingTime = 0.005f;
+                distFromSpawnOrigin = 1;
+                waitingTime = 0.05f;;
                 break;
             case GameDifficulty.HARD:
                 mazeWidth = 16;
                 mazeDepth = 16;
                 circuitBreakerCount = 2;
-                distFromSpawnOrigin = 12;
-                waitingTime = 0.0005f;
+                distFromSpawnOrigin = 2;
+                waitingTime = 0.05f;
                 break;
         }
         
@@ -123,6 +123,7 @@ public class MazeGenerator : MonoBehaviour
         PlaceNexusCore();
         
         //GetComponent<NavMeshSurface>().BuildNavMesh();
+        GameManager.Instance.MazeGrid = mazeGrid;
         EventManager.Instance.InvokeOnMazeGenerated();
     }
 
@@ -313,9 +314,11 @@ public class MazeGenerator : MonoBehaviour
 
     private void PlaceNexusCore()
     {
-        // top right cell
-        var mazeCell = Extensions.GetRandomElementWithinDistance(GetMazeGrid(), 0,
-            GetMazeDepth() - 1, distFromSpawnOrigin);
+        int centerX = GetMazeWidth() / 2; // Integer division for center X
+        int centerY = GetMazeDepth() / 2; // Integer division for center Y
+
+        // Find a cell near the center
+        var mazeCell = Extensions.GetRandomElementWithinDistance(GetMazeGrid(), centerX, centerY, distFromSpawnOrigin);
         
         var nexusCore = Instantiate(nexusCorePrefab, mazeCell.transform.position, Quaternion.identity, mazeCell.transform);
             

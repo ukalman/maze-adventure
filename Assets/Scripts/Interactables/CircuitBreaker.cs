@@ -59,7 +59,7 @@ public class CircuitBreaker : MonoBehaviour
             {
                 isPlayerIn = true;
                 interactionText.SetActive(true);
-                interactionText.GetComponent<TMP_Text>().text = "Press \"E\" to use activate the veins of Nexus";
+                interactionText.GetComponent<TMP_Text>().text = "PRES \"E\" TO USE ACTIVATE THE VEINS OF NEXUS.";
             }
         }
     }

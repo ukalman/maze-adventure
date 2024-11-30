@@ -6,7 +6,7 @@ using UnityEngine;
 public class EnemyHealth : MonoBehaviour
 {
     public float Health { get; private set; }
-    private EnemyController enemyController;
+    private EnemyController controller;
     private DetectionStateManager detectionStateManager;
     [HideInInspector] public bool isDead;
 
@@ -20,17 +20,48 @@ public class EnemyHealth : MonoBehaviour
     {
         bloodSplatterPrefab.Play();
         bloodSplatterPrefab.Stop();
-        Health = 100.0f;
-        enemyController = GetComponent<EnemyController>();
+        controller = GetComponent<EnemyController>();
         detectionStateManager = GetComponent<DetectionStateManager>();
         ragdollManager = GetComponent<RagdollManager>();
+        ResetHealth();
+        
     }
 
+    private void ResetHealth()
+    {
+        switch (LevelManager.Instance.GetGameDifficulty())
+        {
+            case GameDifficulty.EASY:
+                Health = 100.0f;
+                break;
+            case GameDifficulty.MODERATE:
+                Health = 120.0f;
+                break;
+            case GameDifficulty.HARD:
+                Health = 150.0f;
+                break;
+        }
+    }
+    
+    public void ResetModule()
+    {
+        isDead = false;
+        ResetHealth();
+        int aliveEnemyLayer = LayerMask.NameToLayer("AliveEnemy");
+        foreach (Transform child in transform)
+        {
+            if (child.CompareTag("MinimapTile")) child.gameObject.layer = LayerMask.NameToLayer("MinimapTile");
+            Extensions.SetLayerRecursively(child.gameObject, aliveEnemyLayer);
+        }
+        
+    }
+    
     public void TakeDamage(float damage)
     {
         if (Health > 0.0f)
         {
             detectionStateManager.playerHeardRecently = true;
+            if (controller.CurrentState == controller.Idle) damage *= 1.2f;
             Health -= damage;
             if (Health <= 0.0f) EnemyDeath();
         }
@@ -38,13 +69,13 @@ public class EnemyHealth : MonoBehaviour
 
     private void EnemyDeath()
     {
-        //enemyController.isDead = true;
+        //controller.isDead = true;
 
-        Destroy(minimapTile);
+        minimapTile.SetActive(false);
         
-        if (enemyController.CurrentState != enemyController.Run && enemyController.CurrentState != enemyController.Scream)
+        if (controller.CurrentState != controller.Run && controller.CurrentState != controller.Scream)
         {
-            Destroy(enemyController.anim);
+            controller.anim.enabled = false;
             ragdollManager.TriggerRagdoll();
         }
 
@@ -57,7 +88,7 @@ public class EnemyHealth : MonoBehaviour
         int deadEnemyLayer = LayerMask.NameToLayer("DeadEnemy");
         foreach (Transform child in transform)
         {
-            GameManager.Instance.SetLayerRecursively(child.gameObject, deadEnemyLayer);
+            Extensions.SetLayerRecursively(child.gameObject, deadEnemyLayer);
         }
         // isDead is set to true in Bullet script
     }

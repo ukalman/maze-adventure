@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class SceneManager : MonoBehaviour
 {
@@ -22,16 +23,6 @@ public class SceneManager : MonoBehaviour
         
         Instance = this;
         DontDestroyOnLoad(gameObject); 
-    }
-
-    private void Start()
-    {
-        EventManager.Instance.OnMazeExit += OnMazeExit;
-    }
-
-    private void OnDestroy()
-    {
-        EventManager.Instance.OnMazeExit -= OnMazeExit;
     }
     
     public void LoadScene(string sceneName)
@@ -62,14 +53,33 @@ public class SceneManager : MonoBehaviour
     public IEnumerator LoadLevelAsync(int sceneIndex)
     {
         AsyncOperation loadOperation = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneIndex);
+        
+        loadOperation.allowSceneActivation = false;
+        
+        float fakeProgress = 0f;
+        while (fakeProgress < 0.9f)
+        {
+            fakeProgress += Random.Range(0.01f, 0.05f);
+            fakeProgress = Mathf.Clamp(fakeProgress, 0f, 0.9f); 
 
+            loadingSlider.value += fakeProgress;
+            yield return new WaitForSeconds(Random.Range(0.01f, 0.1f)); 
+        }
+
+        // Wait until the real scene is ready to activate
         while (!loadOperation.isDone)
         {
-            float progressValue = Mathf.Clamp01(loadOperation.progress / 0.9f);
-            loadingSlider.value = progressValue;
+            // If the real loading progress is at least 0.9, wait for scene activation
+            if (loadOperation.progress >= 0.9f)
+            {
+                loadingSlider.value = 1f;
+                loadOperation.allowSceneActivation = true; // Activate the scene
+            }
+
             yield return null;
         }
     }
+
 
 
     public void ReloadCurrentScene()
@@ -78,17 +88,12 @@ public class SceneManager : MonoBehaviour
         UnityEngine.SceneManagement.SceneManager.LoadScene(currentSceneIndex);
     }
 
-    /// <summary>
-    /// Quit the application.
-    /// </summary>
+   
     public void QuitGame()
     {
         Application.Quit();
     }
 
-    private void OnMazeExit()
-    {
-        LoadScene(0);
-    }
+    
     
 }

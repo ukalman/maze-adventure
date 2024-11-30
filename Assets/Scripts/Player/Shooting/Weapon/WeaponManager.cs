@@ -54,11 +54,19 @@ public class WeaponManager : MonoBehaviour
         muzzleFlashLight.intensity = 0.0f;
         muzzleFlashParticles = GetComponentInChildren<ParticleSystem>();
         fireRateTimer = fireRate;
+
+        audioSource.volume = 0f;
+        audioSource.PlayOneShot(gunShotSounds[0]);
+        audioSource.PlayOneShot(gunShotSounds[1]);
         
         EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
         EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
         EventManager.Instance.OnGamePaused += OnGamePaused;
         EventManager.Instance.OnGameContinued += OnGameContinued;
+        
+        EventManager.Instance.OnLightsTurnedOn += OnLightsTurnedOn;
+
+        EventManager.Instance.OnVolumeChanged += ResetVolume;
         
         muzzleFlashParticles.Play();
         muzzleFlashParticles.Stop();
@@ -70,6 +78,10 @@ public class WeaponManager : MonoBehaviour
         EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
         EventManager.Instance.OnGamePaused -= OnGamePaused;
         EventManager.Instance.OnGameContinued -= OnGameContinued;
+        
+        EventManager.Instance.OnLightsTurnedOn -= OnLightsTurnedOn;
+        
+        EventManager.Instance.OnVolumeChanged -= ResetVolume;
     }
 
     private void OnEnable()
@@ -89,9 +101,13 @@ public class WeaponManager : MonoBehaviour
     {
         if (!LevelManager.Instance.HasLevelStarted) return;
         
+        if (LevelManager.Instance.playerDied) return;
+        
+        if (LevelManager.Instance.LevelWon) return;
+        
         if (isPaused) return;
 
-        CheckFlashlight();
+        if (!LevelManager.Instance.VeinsActivated) CheckFlashlight();
         
         if (ShouldFire()) Fire();
         muzzleFlashLight.intensity = Mathf.Lerp(muzzleFlashLight.intensity, 0.0f, lightReturnSpeed * Time.deltaTime);
@@ -135,9 +151,18 @@ public class WeaponManager : MonoBehaviour
 
     private void PlayGunshotSound()
     {
+        ResetVolume();
         int randomIndex = Random.Range(0, gunShotSounds.Length);
-        float volume = 0.7f;
-        audioSource.PlayOneShot(gunShotSounds[randomIndex], volume);
+        //float volume = 0.7f;
+        //audioSource.PlayOneShot(gunShotSounds[randomIndex], volume);
+        audioSource.PlayOneShot(gunShotSounds[randomIndex]);
+        
+        AudioManager.Instance.OnWeaponFired();
+    }
+
+    private void ResetVolume()
+    {
+        if (audioSource != null && AudioManager.Instance != null) audioSource.volume = AudioManager.Instance.masterVolume * AudioManager.Instance.sfxVolume * 1.3f;
     }
 
     private void TriggerMuzzleFlash()
@@ -185,6 +210,11 @@ public class WeaponManager : MonoBehaviour
                 flashLight.SetActive(true);
             }
         }
+    }
+
+    private void OnLightsTurnedOn()
+    {
+        if(flashLight.activeSelf) flashLight.SetActive(false);
     }
     
 }

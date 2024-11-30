@@ -11,6 +11,8 @@ public class WeaponClassManager : MonoBehaviour
     public WeaponManager[] weapons;
     public int currentWeaponIndex;
 
+    [SerializeField] private GameObject flashLight;
+    
     private void Awake()
     {
         currentWeaponIndex = 0;
@@ -24,6 +26,7 @@ public class WeaponClassManager : MonoBehaviour
     {
         EventManager.Instance.OnAmmoCollected += OnAmmoCollected;
         EventManager.Instance.OnWeaponAcquired += OnWeaponAcquired;
+        
     }
 
     private void OnDestroy()
@@ -87,5 +90,6 @@ public class WeaponClassManager : MonoBehaviour
         LevelManager.Instance.CollectedAK47 = true;
         actions.SwitchState(actions.Swap);
     }
+    
 
 }

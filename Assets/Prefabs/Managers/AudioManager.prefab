@@ -49,15 +49,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88161b2626ef4de28016f48fe13e0f8c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  globalVolume: 1
   musicAudioSource: {fileID: 7851483256765661738}
   ambienceAudioSource: {fileID: 3669538266070163228}
   footstepAudioSource: {fileID: 4245070191237034301}
   interactionAudioSource: {fileID: 3457708956036001125}
   lightAudioSource: {fileID: 4291929753460846730}
   horrorAmbienceMusic: {fileID: 8300000, guid: c91081263a6d7eb4b85f1123b29241ec, type: 3}
-  footstepSound1: {fileID: 8300000, guid: c8ffceffdb45a1b4795b87b7e25ab43e, type: 3}
-  footstepSound2: {fileID: 8300000, guid: 4bbcbcda7eca7c84689cae22abf6f13e, type: 3}
+  easyTensionMusic: {fileID: 8300000, guid: 73ee8dc1e8d539d4f8902a4447eaa0c9, type: 3}
+  moderateTensionMusic: {fileID: 8300000, guid: 101825d36793c3c41812f731104ddce6,
+    type: 3}
+  hardTensionMusic: {fileID: 8300000, guid: 41a834ac2014d8440830fb5068240ca0, type: 3}
+  footstepSound1: {fileID: 8300000, guid: 5f07192616a3a4744ac4ba663ff98f8d, type: 3}
+  footstepSound2: {fileID: 8300000, guid: 89a3cf2deb806da48b5fc0fa49ff2134, type: 3}
   ammoPickUpSound: {fileID: 8300000, guid: 4ba9d9e4dfd788b4c863f61c597b0da3, type: 3}
   weaponPickUpSound: {fileID: 8300000, guid: 9502ad99ee8d89140abbff13a6acb6e9, type: 3}
   flashlightSound: {fileID: 8300000, guid: df9a99c65be66a44ab7bae95757ff254, type: 3}
@@ -68,10 +71,26 @@ MonoBehaviour:
     type: 3}
   droneAmbienceSound: {fileID: 8300000, guid: b4f6f62fb51080341b4cdca43803d82d, type: 3}
   nexusVeinsSound: {fileID: 8300000, guid: 6ff02656adf7376478a191f4ad6b7833, type: 3}
-  facilityAlarmSound: {fileID: 8300000, guid: 90a5faba6b4d1ad4b95c2f8dfad68534, type: 3}
+  facilityAlarmSound: {fileID: 8300000, guid: 9fb5842441e800349b07df50c62cfd37, type: 3}
+  healingSound: {fileID: 8300000, guid: 3f8afa33e2d96334e86c48d10ee219a5, type: 3}
+  buttonClickSound: {fileID: 8300000, guid: 14d19b2d0f431c841acba2022ef8a4dc, type: 3}
+  doorOpeningSound: {fileID: 8300000, guid: db57dea13ec280d49be0cba92a95a36b, type: 3}
+  nexusPoweringDownSound: {fileID: 8300000, guid: 5fae03864755b174f88815c31ac3d399,
+    type: 3}
+  punchSounds:
+  - {fileID: 8300000, guid: 88e2f4c40cd5c484aac8458c820b8f11, type: 3}
+  - {fileID: 8300000, guid: 5cbf6cc5f4f0f3640bc6f050f2b5481c, type: 3}
+  killerPunchSound: {fileID: 8300000, guid: f16ebd94acf685c43bcba2e4f56ff9fa, type: 3}
+  bulletHitFleshSounds:
+  - {fileID: 8300000, guid: fd4ef5144b2dd79479aafde06fa65062, type: 3}
+  - {fileID: 8300000, guid: 599168ef6be1dfe4c8fb48c7acfd43a9, type: 3}
+  bulletHitMetalSounds:
+  - {fileID: 8300000, guid: 422abc3fac7bcf945b51e3209dae27e8, type: 3}
+  - {fileID: 8300000, guid: 1e64facbe8848274aa66f825ced5eaee, type: 3}
+  bulletShellSound: {fileID: 8300000, guid: c3fb68e8a2e9e4c43b5cc4379c73bb38, type: 3}
+  masterVolume: 0
   musicVolume: 0.5
-  ambienceVolume: 0.3
-  alarmVolume: 0.1
+  sfxVolume: 0
 --- !u!82 &7851483256765661738
 AudioSource:
   m_ObjectHideFlags: 0

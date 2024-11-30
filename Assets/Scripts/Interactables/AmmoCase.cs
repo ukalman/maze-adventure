@@ -65,19 +65,19 @@ public class AmmoCase : MonoBehaviour
                 interactionText.SetActive(true);
                 if (ammoType == AmmoType.AK47_762 && !LevelManager.Instance.CollectedAK47)
                 {
-                    interactionText.GetComponent<TMP_Text>().text = "To collect this ammo, you must first acquire an AK-47 rifle.";
+                    interactionText.GetComponent<TMP_Text>().text = "TO COLLECT THIS AMMO, YOU MUST FIRST ACQUIRE AN AK-47 RIFLE.";
                     canCollect = false;
                 }
                 
                 else if (ammoType == AmmoType.AK47_762 && LevelManager.Instance.CollectedAK47)
                 {
-                    interactionText.GetComponent<TMP_Text>().text = "Press \"E\" to collect AK-47 ammo.";
+                    interactionText.GetComponent<TMP_Text>().text = "PRESS \"E\" TO COLLECT AK-47 AMMO.";
                     canCollect = true;
                 }
                 
                 else if (ammoType == AmmoType.M4_556)
                 {
-                    interactionText.GetComponent<TMP_Text>().text = "Press \"E\" to collect M4 Carbine ammo.";
+                    interactionText.GetComponent<TMP_Text>().text = "PRESS \"E\" TO COLLECT M4 CARBINE AMMO.";
                     canCollect = true;
                 }
             }

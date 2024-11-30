@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
+
 public class EnemyController : MonoBehaviour
 {
     public float runSpeed = 3.5f;
@@ -40,18 +41,26 @@ public class EnemyController : MonoBehaviour
     private EnemyHealth health;
     public RagdollManager ragdollManager;
 
+    [SerializeField] private Material originalMat1, originalMat2;
     [SerializeField] private Material transparentMat1, transparentMat2;
+    private SkinnedMeshRenderer renderer;
     [SerializeField] private GameObject minimapTile;
 
     public bool isAwayFromPlayer;
     
     public bool isPaused;
 
-    public GameObject zombieGroup;
+    public bool deathMarchActive;
+    
+    public ZombieGroup zombieGroup;
+    
+    [SerializeField] private int groupIndex;
+    
     
     private void Start()
     {
-        zombieGroup = transform.parent.gameObject;
+        zombieGroup = transform.parent.GetComponent<ZombieGroup>();
+        renderer = GetComponentInChildren<SkinnedMeshRenderer>();
         anim = GetComponent<Animator>();
         enemyAgent = GetComponent<NavMeshAgent>();
         enemyAudio = GetComponent<EnemyAudio>();
@@ -60,11 +69,30 @@ public class EnemyController : MonoBehaviour
         SwitchState(Idle);
         isDead = health.isDead;
         playerHealth = GameManager.Instance.Player.GetComponent<PlayerHealth>();
+
+        switch (LevelManager.Instance.GetGameDifficulty())
+        {
+            case GameDifficulty.EASY:
+                attackDamage = 15.0f;
+                break;
+            case GameDifficulty.MODERATE:
+                attackDamage = 20.0f;
+                break;
+            case GameDifficulty.HARD:
+                attackDamage = 25.0f;
+                break;
+        }
         
         EventManager.Instance.OnDroneCamActivated += OnDroneCamActivated;
         EventManager.Instance.OnDroneCamDeactivated += OnDroneCamDeactivated;
         EventManager.Instance.OnGamePaused += OnGamePaused;
         EventManager.Instance.OnGameContinued += OnGameContinued;
+
+        EventManager.Instance.OnCountdownEnded += OnCountdownEnded;
+        
+        EventManager.Instance.OnNexusCoreObtained += OnNexusCoreObtained;
+        
+        EventManager.Instance.OnMazeExit += OnMazeExit;
     }
 
     private void OnDestroy()
@@ -73,6 +101,13 @@ public class EnemyController : MonoBehaviour
         EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
         EventManager.Instance.OnGamePaused -= OnGamePaused;
         EventManager.Instance.OnGameContinued -= OnGameContinued;
+        
+        EventManager.Instance.OnCountdownEnded -= OnCountdownEnded;
+        
+         
+        EventManager.Instance.OnNexusCoreObtained -= OnNexusCoreObtained;
+        
+        EventManager.Instance.OnMazeExit -= OnMazeExit;
     }
 
     private void Update()
@@ -82,6 +117,11 @@ public class EnemyController : MonoBehaviour
         if (isPaused) return;
         
         isDead = health.isDead;
+        
+        if (isAwayFromPlayer) return;
+
+        if (LevelManager.Instance.HasNexusCore && !deathMarchActive) deathMarchActive = true;
+        
         CurrentState.UpdateState(this);
         if (isDead && !isDeadDoubleCheck)
         {
@@ -92,14 +132,14 @@ public class EnemyController : MonoBehaviour
     
     public void ActivateEnemyModules()
     {
-        anim.enabled = true;
         enemyAudio.enabled = true;
+        enemyAgent.enabled = true;
     }
 
     public void DeactivateEnemyModules()
     {
-        anim.enabled = false;
         enemyAudio.enabled = false;
+        enemyAgent.enabled = false;
     }
     
     public void SwitchState(EnemyBaseState stateToSwitch)
@@ -108,6 +148,32 @@ public class EnemyController : MonoBehaviour
         CurrentState.EnterState(this);
     }
 
+    public void SetGroupIndex(int index)
+    {
+        groupIndex = index;
+    }
+
+    public int GetGroupIndex()
+    {
+        return groupIndex;
+    }
+
+    public void ResetEnemy()
+    {
+       health.ResetModule();
+       minimapTile.layer = LayerMask.NameToLayer("MinimapTile");
+     
+       minimapTile.SetActive(true);
+       
+       isDead = false;
+       isDeadDoubleCheck = false;
+       
+       ragdollManager.DeactivateRagdoll();
+       
+       enemyAgent.enabled = true;
+       anim.enabled = true;
+    }
+    
     public bool IsPlayerInAttackingDist()
     {
         if (playerHealth != null)
@@ -139,7 +205,8 @@ public class EnemyController : MonoBehaviour
         isDeadDoubleCheck = true;
 
         // Destroy the enemy's NavMesh agent
-        Destroy(enemyAgent);
+        enemyAgent.enabled = false;
+        //Destroy(enemyAgent);
 
         // Handle animations and ragdoll
         if (anim != null)
@@ -156,7 +223,7 @@ public class EnemyController : MonoBehaviour
                 yield return null; // Waits for the game to unpause if paused
             }
 
-            Destroy(anim);
+            anim.enabled = false;
             ragdollManager.TriggerRagdoll();
         }
 
@@ -177,21 +244,24 @@ public class EnemyController : MonoBehaviour
 
         // Fade away the object
         yield return StartCoroutine(FadeAway());
-
-        EventManager.Instance.InvokeOnEnemyDestroy(zombieGroup);
+        
+        // Set the zombie inactive
+        zombieGroup.SetZombieInactive(groupIndex);
+        
+        if (renderer != null) renderer.materials = new Material[] { originalMat1, originalMat2 };
+        
         
         // Destroy the enemy object
-        Destroy(gameObject);
+        //Destroy(gameObject);
     }
 
 
     private IEnumerator FadeAway()
     {
-        SkinnedMeshRenderer skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
-        if (skinnedMeshRenderer != null)
+        if (renderer != null)
         {
             // Set the transparent materials
-            skinnedMeshRenderer.materials = new Material[] { transparentMat1, transparentMat2 };
+            renderer.materials = new Material[] { transparentMat1, transparentMat2 };
 
             // Fade duration
             float fadeDuration = 3.0f;
@@ -211,7 +281,7 @@ public class EnemyController : MonoBehaviour
                 float newOpacity = Mathf.Lerp(1.0f, 0, elapsedTime / fadeDuration);
 
                 // Update the alpha for each material
-                foreach (var material in skinnedMeshRenderer.materials)
+                foreach (var material in renderer.materials)
                 {
                     Color color = material.color;
                     color.a = newOpacity;
@@ -228,30 +298,47 @@ public class EnemyController : MonoBehaviour
     {
         isPaused = true;
         if (anim != null) anim.speed = 0;
-        if (enemyAgent != null) enemyAgent.isStopped = true;
-        if (LevelManager.Instance.VeinsActivated) LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
+        if (enemyAgent != null && enemyAgent.isActiveAndEnabled) enemyAgent.isStopped = true;
+        if (LevelManager.Instance.VeinsActivated && !health.isDead) LevelManager.Instance.levelUIManager.RegisterTrackedObject(transform);
     }
 
     private void OnDroneCamDeactivated()
     {
         isPaused = false;
         if (anim != null) anim.speed = 1;
-        if (enemyAgent != null) enemyAgent.isStopped = false;
+        if (enemyAgent != null && enemyAgent.isActiveAndEnabled) enemyAgent.isStopped = false;
         LevelManager.Instance.levelUIManager.UnregisterTrackedObject(transform);
     }
 
     private void OnGamePaused()
     {
         isPaused = true;
-        anim.speed = 0;
-        enemyAgent.isStopped = true;
+        if (anim != null && anim.isActiveAndEnabled) anim.speed = 0;
+        if (enemyAgent != null && enemyAgent.isActiveAndEnabled) enemyAgent.isStopped = true;
     }
 
     private void OnGameContinued()
     {
         isPaused = false;
-        anim.speed = 1;
-        enemyAgent.isStopped = false;
+        if (anim != null && anim.isActiveAndEnabled) anim.speed = 1;
+        if (enemyAgent != null && enemyAgent.isActiveAndEnabled) enemyAgent.isStopped = false;
+    }
+
+    private void OnCountdownEnded()
+    {
+        gameObject.SetActive(false);
+    }
+
+    private void OnNexusCoreObtained()
+    {
+        playerSeen = true;
+        isAwayFromPlayer = false;
+        deathMarchActive = true;
+    }
+
+    private void OnMazeExit()
+    {
+        gameObject.SetActive(false);
     }
 
     

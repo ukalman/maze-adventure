@@ -34,6 +34,8 @@ public class EventManager : MonoBehaviour
     public event Action OnMazeGenerated;
 
     public event Action OnEnemyKilled;
+
+    public event Action OnEnemyAwaken;
     
     public event Action<GameObject> OnEnemyDestroy;
 
@@ -66,6 +68,14 @@ public class EventManager : MonoBehaviour
     public event Action OnLevelInstantiated;
 
     public event Action OnLevelStarted;
+
+    public event Action OnPlayerDied;
+
+    public event Action OnCountdownEnded;
+
+    public event Action OnVolumeChanged;
+
+    public event Action OnGameFinished;
 
     public void InvokeOnDifficultySelected(GameDifficulty difficulty)
     {
@@ -138,6 +148,11 @@ public class EventManager : MonoBehaviour
     {
         OnEnemyKilled?.Invoke();
     }
+
+    public void InvokeOnEnemyAwaken()
+    {
+        OnEnemyAwaken?.Invoke();
+    }
     
     public void InvokeOnEnemyDestroy(GameObject zombieGroup)
     {
@@ -209,7 +224,25 @@ public class EventManager : MonoBehaviour
         OnNexusCoreObtained?.Invoke();
     }
 
-    
+    public void InvokeOnPlayerDied()
+    {
+        OnPlayerDied?.Invoke();
+    }
+
+    public void InvokeOnCountdownEnded()
+    {
+        OnCountdownEnded?.Invoke();
+    }
+
+    public void InvokeOnVolumeChanged()
+    {
+        OnVolumeChanged?.Invoke();
+    }
+
+    public void InvokeOnGameFinished()
+    {
+        OnGameFinished?.Invoke();   
+    }
     
     
 }

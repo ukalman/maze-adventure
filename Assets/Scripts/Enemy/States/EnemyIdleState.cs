@@ -156,7 +156,7 @@ public class EnemyIdleState : EnemyBaseState
         idleTimer = 0.0f;
         wanderInterval = Random.Range(5.0f, 10.0f); // Reset the interval to idle again
 
-        if (controller.enemyAgent != null) controller.enemyAgent.isStopped = true; 
+        if (controller.enemyAgent != null && controller.enemyAgent.isActiveAndEnabled) controller.enemyAgent.isStopped = true; 
         if (controller.anim != null) controller.anim.SetBool("ZombieWalking", false);
        
     }

@@ -56,7 +56,7 @@ public class EnemyRunState : EnemyBaseState
         
         if (canMakeRunSound) controller.StartCoroutine(controller.enemyAudio.PlaySound(EnemyAudioState.Run));
 
-        if (controller.enemyAgent != null)
+        if (controller.enemyAgent != null && controller.enemyAgent.isActiveAndEnabled)
         {
             //controller.enemyAgent.SetDestination(GameManager.Instance.Player.transform.position);
             controller.enemyAgent.SetDestination(new Vector3(playerTransform.position.x, 0.1f, playerTransform.position.z));

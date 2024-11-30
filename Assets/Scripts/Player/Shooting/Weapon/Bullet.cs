@@ -8,13 +8,16 @@ public class Bullet : MonoBehaviour
     [SerializeField] private float timeToDestroy;
     [HideInInspector] public WeaponManager weapon;
     [HideInInspector] public Vector3 dir;
+
+    public float impactOffsetMultiplier;
     
     private Rigidbody rb;
     private bool isPaused;
     private Vector3 savedVelocity;
     private Vector3 savedAngularVelocity;
     private float remainingTimeToDestroy;
-    
+
+    private bool hit;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -56,10 +59,31 @@ public class Bullet : MonoBehaviour
     
     private void OnCollisionEnter(Collision other)
     {
+        if (other.transform.CompareTag("Wall"))
+        {
+            if (!hit)
+            {
+                hit = true;
+                AudioManager.Instance.OnBulletHitMetal();
+                ContactPoint contact = other.GetContact(0);
+            
+                Vector3 impactOffsetDirection = Vector3.Cross(contact.normal, Vector3.up).normalized; 
+            
+                Vector3 contactPoint = contact.point + impactOffsetDirection * impactOffsetMultiplier;
+            
+                GameObject impactEffect = Instantiate(GameManager.Instance.bulletImpactEffect, contactPoint,
+                    Quaternion.LookRotation(contact.normal));
+
+                Destroy(impactEffect, 0.5f);
+            }
+            
+        }
+        
         var enemyHealth = other.gameObject.GetComponentInParent<EnemyHealth>();
 
         if (enemyHealth != null)
         {
+            AudioManager.Instance.OnBulletHitFlesh();
             Vector3 hitPoint = other.contacts[0].point; // Get the exact point of collision
             Vector3 burstDirection = -transform.forward;
 
@@ -73,7 +97,8 @@ public class Bullet : MonoBehaviour
             
             if (!enemyHealth.isDead)
             {
-                enemyHealth.TakeDamage(weapon.damage);
+                float damageMultiplier = other.transform.CompareTag("ZombieHead") ? 2.5f : 1.0f;
+                enemyHealth.TakeDamage(weapon.damage * damageMultiplier);
                 
                 if (enemyHealth.Health <= 0.0f)
                 {

@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class LevelUIManager : MonoBehaviour
 {
-    
     [Header("Canvas")]
     [SerializeField] private Canvas mainCamCanvas;
     [SerializeField] private Canvas droneCamObjects;
@@ -20,6 +20,15 @@ public class LevelUIManager : MonoBehaviour
     public GameObject interactionText;
     [SerializeField] private TMP_Text objectiveInfoText;
     [SerializeField] private TMP_Text scanningText;
+    [SerializeField] private TMP_Text youDiedText;
+    [SerializeField] private TMP_Text droneCamAvailabilityText;
+    [SerializeField] private TMP_Text sprayPaintUsesText;
+    [SerializeField] private GameObject droneCamCountdownGO;
+    [SerializeField] private GameObject levelInfo;
+    [SerializeField] private GameObject easyLevelInfo;
+    [SerializeField] private GameObject moderateLevelInfo;
+    [SerializeField] private GameObject hardLevelInfo;
+    
     
     [Header("Prefabs")]
     [SerializeField] private GameObject playerIconPrefab;
@@ -32,12 +41,29 @@ public class LevelUIManager : MonoBehaviour
     [SerializeField] private GameObject entranceIconPrefab;
     [SerializeField] private GameObject exitIconPrefab;
 
+    [Header("Buttons")] 
+    [SerializeField] private GameObject readyButton;
+    [SerializeField] private GameObject startButton;
+    
+    
     [Header("Drone Cam")]
     [SerializeField] Camera droneCam;
     
     [Header("General Panels")]
     [SerializeField] private GameObject gamePausedPanel;
     [SerializeField] private GameObject levelStartedPanel;
+    [SerializeField] private GameObject playerDiedPanel;
+    [SerializeField] private GameObject levelCompletedPanel;
+
+    [Header("Sliders")]
+    [SerializeField] private Slider masterVolumeSlider;
+    [SerializeField] private Slider musicVolumeSlider;
+    [SerializeField] private Slider sfxVolumeSlider;
+
+    [Header("Images")]
+    [SerializeField] private Image crosshair;
+    [SerializeField] private Image fadeOutImage;
+    private float fadeDuration = 2.0f;
     
     private bool isDroneCamActive;
     private bool isScanning;
@@ -66,6 +92,12 @@ public class LevelUIManager : MonoBehaviour
         EventManager.Instance.OnNexusCoreObtained += OnNexusCoreObtained;
 
         EventManager.Instance.OnLevelInstantiated += StopScanning;
+        
+        EventManager.Instance.OnPlayerDied += OnPlayerDied;
+
+        EventManager.Instance.OnCountdownEnded += OnCountdownEnded;
+
+        EventManager.Instance.OnLevelCompleted += OnLevelCompleted;
     }
 
     private void Start()
@@ -74,20 +106,22 @@ public class LevelUIManager : MonoBehaviour
         switch (LevelManager.Instance.GetGameDifficulty())
         {
             case GameDifficulty.EASY:
-                startTimeInMinutes = 3.0f;
+                startTimeInMinutes = 3.5f;
                 break;
             case GameDifficulty.MODERATE:
-                startTimeInMinutes = 4.0f;
+                startTimeInMinutes = 3.0f;
                 break;
             case GameDifficulty.HARD:
-                startTimeInMinutes = 5.0f;
+                startTimeInMinutes = 2.5f;
                 break;
         }
-        
+
+    
         timeRemaining = startTimeInMinutes * 60.0f;
         UpdateTimerDisplay();
+        InitializeSliders();
         
-        objectiveInfoText.text = "Objective: Locate the circuit breaker and activate the Nexus veins.";
+        objectiveInfoText.text = "OBJECTIVE: LOCATE THE CIRCUIT BREAKER AND ACTIVATE THE NEXUS VEINS.";
         
         generalCanvas.enabled = false;
         droneCamCanvas.enabled = false;
@@ -114,11 +148,28 @@ public class LevelUIManager : MonoBehaviour
         EventManager.Instance.OnNexusCoreObtained -= OnNexusCoreObtained;
         
         EventManager.Instance.OnLevelInstantiated -= StopScanning;
+        
+        EventManager.Instance.OnPlayerDied -= OnPlayerDied;
+        
+        EventManager.Instance.OnCountdownEnded -= OnCountdownEnded;
+        
+        EventManager.Instance.OnLevelCompleted -= OnLevelCompleted;
     }
 
     private void Update()
     {
         if (isDroneCamActive) SetDroneCamIcons();
+    }
+    
+    private void InitializeSliders()
+    {
+        masterVolumeSlider.value = DataManager.Instance.masterVolume;
+        musicVolumeSlider.value = DataManager.Instance.musicVolume;
+        sfxVolumeSlider.value = DataManager.Instance.sfxVolume;
+        
+        masterVolumeSlider.onValueChanged.AddListener(OnMasterVolumeChanged);
+        musicVolumeSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
+        sfxVolumeSlider.onValueChanged.AddListener(OnSFXVolumeChanged);
     }
     
     private IEnumerator ScanningLoop()
@@ -170,18 +221,43 @@ public class LevelUIManager : MonoBehaviour
     
     private void TimerEnded()
     {
+        EventManager.Instance.InvokeOnCountdownEnded();
         // game over
     }
 
-    public void StopTimer()
+    private void StopTimer()
     {
         isTimerRunning = false;
     }
 
-    public void StartTimer()
+    private void StartTimer()
     {
         if (timeRemaining > 0)
             isTimerRunning = true;
+    }
+
+    public void UpdateDroneCamCountdown(float duration)
+    {
+        droneCamCountdownGO.GetComponent<TMP_Text>().text = "DRONE CAM UPLINK DURATION: " + (int)duration;
+    }
+
+    public void UpdateDroneCamAvailabilityText(bool available)
+    {
+        if (available)
+        {
+            droneCamAvailabilityText.text = "AVAILABLE";
+            droneCamAvailabilityText.color = new Color(0.0f, 0.764151f, 0.0f);
+        }
+        else
+        {
+            droneCamAvailabilityText.text = "UNAVAILABLE";
+            droneCamAvailabilityText.color = Color.red;
+        }
+    }
+
+    public void UpdateSprayPaintUsesText(int usesLeft)
+    {
+        sprayPaintUsesText.text = "SPRAY PAINT USES LEFT: " + usesLeft;
     }
 
     public void RegisterTrackedObject(Transform trackedObject)
@@ -310,6 +386,12 @@ public class LevelUIManager : MonoBehaviour
         droneCamCanvas.enabled = true;
         droneCamObjects.enabled = true;
         isDroneCamActive = true;
+
+        if (LevelManager.Instance.GetGameDifficulty() == GameDifficulty.MODERATE ||
+            LevelManager.Instance.GetGameDifficulty() == GameDifficulty.HARD && !LevelManager.Instance.HasLevelStarted)
+        {
+            droneCamCountdownGO.SetActive(true);
+        }
     }
 
     private void OnDroneCamDeactivated()
@@ -345,13 +427,15 @@ public class LevelUIManager : MonoBehaviour
 
     private void OnLightsTurnedOn()
     {
-        objectiveInfoText.text = "Objective: Retrieve the Nexus core from its port.";
+        objectiveInfoText.text = "OBJECTIVE: RETRIEVE THE NEXUS CORE FROM ITS PORT.";
     }
 
     private void OnNexusCoreObtained()
     {
         objectiveInfoText.color = Color.red;
         objectiveInfoText.text = "ESCAPE THE LAB!";
+        droneCamAvailabilityText.transform.parent.gameObject.SetActive(false);
+        sprayPaintUsesText.gameObject.SetActive(false);
         timerText.gameObject.SetActive(true);
         StartCoroutine(TimerCountdown());
     }
@@ -362,7 +446,28 @@ public class LevelUIManager : MonoBehaviour
         levelStartedPanel.SetActive(true);
     }
 
-    public void OnReadyButtonPressed()
+    public void OnReadyClicked()
+    {
+        levelInfo.SetActive(false);
+        
+        switch (LevelManager.Instance.GetGameDifficulty())
+        {
+            case GameDifficulty.EASY:
+                easyLevelInfo.SetActive(true);
+                break;
+            case GameDifficulty.MODERATE:
+                moderateLevelInfo.SetActive(true);
+                break;
+            case GameDifficulty.HARD:
+                hardLevelInfo.SetActive(true);
+                break;
+        }
+        
+        readyButton.SetActive(false);
+        startButton.SetActive(true);
+    }
+    
+    public void OnStartClicked()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -370,4 +475,99 @@ public class LevelUIManager : MonoBehaviour
         generalCanvas.enabled = false;
         levelStartedPanel.SetActive(false);
     }
+    
+    private void OnMasterVolumeChanged(float value)
+    {
+        DataManager.Instance.masterVolume = value;
+        DataManager.Instance.SaveVolumeSettings();
+        AudioManager.Instance.OnMasterVolumeChanged(value);
+        EventManager.Instance.InvokeOnVolumeChanged();
+    }
+
+    private void OnMusicVolumeChanged(float value)
+    {
+        DataManager.Instance.musicVolume = value;
+        DataManager.Instance.SaveVolumeSettings();
+        AudioManager.Instance.OnMusicVolumeChanged(value);
+    }
+
+    private void OnSFXVolumeChanged(float value)
+    {
+        DataManager.Instance.sfxVolume = value;
+        DataManager.Instance.SaveVolumeSettings();
+        AudioManager.Instance.OnSFXVolumeChanged(value);
+        EventManager.Instance.InvokeOnVolumeChanged();
+    }
+
+    private void OnPlayerDied()
+    {
+        youDiedText.text = "YOU HAVE BEEN SLAUGHTERED BY THE ZOMBIES.";
+        StartCoroutine(PlayerDiedCoroutine());
+    }
+    
+    private void OnCountdownEnded()
+    {
+        youDiedText.text = "THE NEXUS HAS SELF-DESTRUCTED, OBLITERATING YOU AND THE CORE.";
+        StartCoroutine(CountdownEndCoroutine());
+    }
+
+    private void OnLevelCompleted(GameDifficulty difficulty)
+    {
+        StartCoroutine(LevelCompletedCoroutine());
+    }
+    
+    private IEnumerator PlayerDiedCoroutine()
+    {
+        yield return new WaitForSeconds(2.0f);
+        yield return StartCoroutine(FadeOut());
+    }
+
+    private IEnumerator CountdownEndCoroutine()
+    {
+        yield return StartCoroutine(FadeOut());
+    }
+
+    private IEnumerator LevelCompletedCoroutine()
+    {
+        StopTimer();
+        yield return new WaitForSeconds(2.0f);
+        yield return StartCoroutine(FadeOut());
+    }
+    
+    private IEnumerator FadeOut()
+    {
+        fadeOutImage.gameObject.SetActive(true);
+
+        Color fadeColor = fadeOutImage.color;
+        fadeColor.a = 0f;
+        fadeOutImage.color = fadeColor;
+
+        float elapsedTime = 0f;
+        
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            fadeColor.a = Mathf.Clamp01(elapsedTime / fadeDuration);
+            fadeOutImage.color = fadeColor;
+
+            yield return null; 
+        }
+        
+        fadeColor.a = 1f;
+        fadeOutImage.color = fadeColor;
+
+        OnFadeComplete();
+    }
+
+    private void OnFadeComplete()
+    {
+        generalCanvas.enabled = true;
+        crosshair.enabled = false;
+        
+        GameManager.Instance.Player.SetActive(false);
+        
+        if (GameManager.Instance.State == GameState.LevelFailed) playerDiedPanel.SetActive(true);
+        else if (GameManager.Instance.State == GameState.LevelCompleted) levelCompletedPanel.SetActive(true);
+    }
+    
 }

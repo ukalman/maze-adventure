@@ -1,4 +1,5 @@
 
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -38,11 +39,19 @@ public class LevelManager : MonoBehaviour
 
     public bool VeinsActivated;
 
-    private int zombieKillCount;
+    public int zombieKillCount;
 
     private bool isPaused;
 
     public bool readyButtonPressed;
+
+    public bool playerDied;
+
+    public bool LevelWon;
+
+    public bool isDroneCamAvailable;
+
+    [SerializeField] private AudioSource nightVisionAudioSource;
     
     [Header(("Cameras"))]
     [SerializeField] private Camera mainCam, droneCam, minimapCam;
@@ -68,6 +77,7 @@ public class LevelManager : MonoBehaviour
         nightVisionVolume.SetActive(false);
         veinsVolume.SetActive(false);
         nightVisionLight.SetActive(false);
+        OnVolumeChanged();
         
         EventManager.Instance.OnLevelInstantiated += OnLevelInstantiated;
         EventManager.Instance.OnLevelStarted += OnLevelStarted;
@@ -83,6 +93,14 @@ public class LevelManager : MonoBehaviour
 
         EventManager.Instance.OnGamePaused += OnGamePaused;
         EventManager.Instance.OnGameContinued += OnGameContinued;
+
+        EventManager.Instance.OnPlayerDied += OnPlayerDied;
+
+        EventManager.Instance.OnCountdownEnded += OnCountdownEnded;
+        
+        EventManager.Instance.OnMazeExit += OnMazeExit;
+
+        EventManager.Instance.OnVolumeChanged += OnVolumeChanged;
         
         cameraSwitcher.DisableCameras();
         cameraSwitcher.ActivateDroneCam();
@@ -105,18 +123,21 @@ public class LevelManager : MonoBehaviour
         
         EventManager.Instance.OnGamePaused -= OnGamePaused;
         EventManager.Instance.OnGameContinued -= OnGameContinued;
+        
+        EventManager.Instance.OnPlayerDied -= OnPlayerDied;
+        
+        EventManager.Instance.OnCountdownEnded -= OnCountdownEnded;
+
+        EventManager.Instance.OnMazeExit -= OnMazeExit;
+        
+        EventManager.Instance.OnVolumeChanged -= OnVolumeChanged;
     }
 
     private void Update()
     {
         if (!LevelInstantiated) return;
-        /*
-        if (Input.GetKeyDown(KeyCode.Escape) && readyButtonPressed)
-        {
-            if (!isPaused) EventManager.Instance.InvokeOnGamePaused();
-            else EventManager.Instance.InvokeOnGameContinued();
-        }
-        */
+        
+        if (playerDied) return;
         
         HandlePauseState();
         
@@ -125,7 +146,7 @@ public class LevelManager : MonoBehaviour
         HandleNightVision();
     }
 
-    public void SetGameDifficulty(GameDifficulty difficulty)
+    private void SetGameDifficulty(GameDifficulty difficulty)
     {
         Difficulty = difficulty;
     }
@@ -137,7 +158,7 @@ public class LevelManager : MonoBehaviour
 
     private void HandlePauseState()
     {
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.Escape) && !DroneCamActive)
         {
             if (isPaused)
             {
@@ -158,11 +179,10 @@ public class LevelManager : MonoBehaviour
         {
             if (mainCam.gameObject.activeSelf)
             {
-                if (switchRight > 0 && activeCombatEnemies.Count == 0)
+                if (isDroneCamAvailable && activeCombatEnemies.Count == 0)
                 {
                     EventManager.Instance.InvokeOnDroneCamActivated();
                     cameraSwitcher.ActivateDroneCam();
-                    switchRight--;
                 }
             }
             else if (droneCam.gameObject.activeSelf)
@@ -174,6 +194,49 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    private IEnumerator DroneCamRefillCoroutine()
+    {
+        float duration = 60.0f;
+
+        while (duration > 0.0f && !isDroneCamAvailable)
+        {
+            if (isPaused) yield return null;
+            else
+            {
+                yield return new WaitForSeconds(1.0f);
+                duration -= 1.0f;
+            }
+        }
+
+        if (duration <= 0.0f)
+        {
+            isDroneCamAvailable = true;
+            levelUIManager.UpdateDroneCamAvailabilityText(isDroneCamAvailable);
+        }
+    }
+
+    private IEnumerator DroneCamCountdownCoroutine(float duration)
+    {
+        levelUIManager.UpdateDroneCamCountdown(duration);
+        while (duration > 0.0f && DroneCamActive)
+        {
+            if (isPaused) yield return null;
+            else
+            {
+                yield return new WaitForSeconds(1.0f);
+                duration -= 1.0f;
+                levelUIManager.UpdateDroneCamCountdown(duration);
+            }
+        }
+
+        if (duration <= 0.0f)
+        {
+            if (!HasLevelStarted) EventManager.Instance.InvokeOnLevelStarted();
+            EventManager.Instance.InvokeOnDroneCamDeactivated();
+            cameraSwitcher.ActivateMainCam();
+        }
+    }
+    
     private void HandleNightVision()
     {
         if (Input.GetKeyDown(KeyCode.X))
@@ -188,9 +251,7 @@ public class LevelManager : MonoBehaviour
     {
         zombieKillCount++;
     }
-
-
-
+    
     private void OnGamePaused()
     {
         isPaused = true;
@@ -204,11 +265,34 @@ public class LevelManager : MonoBehaviour
     private void OnDroneCamActivated()
     {
         DroneCamActive = true;
+        switch (Difficulty)
+        {
+            case GameDifficulty.MODERATE:
+                StartCoroutine(DroneCamCountdownCoroutine(30.0f));
+                break;
+            case GameDifficulty.HARD:
+                StartCoroutine(DroneCamCountdownCoroutine(30.0f));
+                break;
+        }
     }
 
     private void OnDroneCamDeactivated()
     {
         DroneCamActive = false;
+        switch (Difficulty)
+        {
+            case GameDifficulty.EASY:
+                isDroneCamAvailable = true;
+                break;
+            case GameDifficulty.MODERATE:
+                isDroneCamAvailable = false;
+                StartCoroutine(DroneCamRefillCoroutine());
+                break;
+            case GameDifficulty.HARD:
+                isDroneCamAvailable = false;
+                break;
+        }
+        levelUIManager.UpdateDroneCamAvailabilityText(isDroneCamAvailable);
     }
 
     private void OnLightsTurnedOn()
@@ -219,6 +303,9 @@ public class LevelManager : MonoBehaviour
         nightVisionVolume.SetActive(false);
         nightVisionLight.SetActive(false);
         veinsVolume.SetActive(true);
+
+        isDroneCamAvailable = true;
+        levelUIManager.UpdateDroneCamAvailabilityText(isDroneCamAvailable);
     }
 
     private void OnNexusCoreObtained()
@@ -226,6 +313,7 @@ public class LevelManager : MonoBehaviour
         HasNexusCore = true;
         Color ambientColor = new Color(135.0f / 255.0f, 0.0f, 0.0f);
         RenderSettings.ambientLight = ambientColor;
+        isDroneCamAvailable = false;
     }
 
     private void OnLevelInstantiated()
@@ -239,4 +327,24 @@ public class LevelManager : MonoBehaviour
         HasLevelStarted = true;
     }
     
+    private void OnPlayerDied()
+    {
+        playerDied = true;
+    }
+
+    private void OnCountdownEnded()
+    {
+        playerDied = true;
+    }
+
+    private void OnMazeExit()
+    {
+        LevelWon = true;
+        EventManager.Instance.InvokeOnLevelCompleted(Difficulty);
+    }
+
+    private void OnVolumeChanged()
+    {
+        nightVisionAudioSource.volume = AudioManager.Instance.masterVolume * AudioManager.Instance.sfxVolume;
+    }
 }
