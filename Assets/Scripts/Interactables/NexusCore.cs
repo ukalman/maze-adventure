@@ -83,7 +83,7 @@ public class NexusCore : MonoBehaviour
                 }
                 else
                 {
-                    interactionText.GetComponent<TMP_Text>().text = "Press \"E\" to remove the Nexus core.";
+                    interactionText.GetComponent<TMP_Text>().text = "PRESS \"E\" TO REMOVE THE NEXUS CORE.";
                     canCollect = true;
                 }
                 

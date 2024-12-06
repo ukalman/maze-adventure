@@ -9,7 +9,7 @@ public class SceneManager : MonoBehaviour
 {
     public static SceneManager Instance { get; private set; }
 
-    [SerializeField] private Slider loadingSlider;
+    public Slider loadingSlider;
     
     private void Awake()
     {
@@ -18,8 +18,6 @@ public class SceneManager : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        
         
         Instance = this;
         DontDestroyOnLoad(gameObject); 
@@ -60,13 +58,13 @@ public class SceneManager : MonoBehaviour
         while (fakeProgress < 0.9f)
         {
             fakeProgress += Random.Range(0.01f, 0.05f);
-            fakeProgress = Mathf.Clamp(fakeProgress, 0f, 0.9f); 
+            fakeProgress = Mathf.Clamp(fakeProgress, 0f, 0.9f);
+            
+            loadingSlider.value = fakeProgress;
 
-            loadingSlider.value += fakeProgress;
-            yield return new WaitForSeconds(Random.Range(0.01f, 0.1f)); 
+            yield return new WaitForSeconds(Random.Range(0.05f, 0.1f));
         }
-
-        // Wait until the real scene is ready to activate
+        
         while (!loadOperation.isDone)
         {
             // If the real loading progress is at least 0.9, wait for scene activation

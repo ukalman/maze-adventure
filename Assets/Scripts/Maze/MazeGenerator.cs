@@ -74,7 +74,7 @@ public class MazeGenerator : MonoBehaviour
         {
             int randomSeed = Random.Range(1, 1000000);
             Random.InitState(randomSeed);
-            Debug.Log(randomSeed);
+            //Debug.Log(randomSeed);
         }
 
         switch (LevelManager.Instance.GetGameDifficulty())
@@ -122,7 +122,6 @@ public class MazeGenerator : MonoBehaviour
         PlaceCircuitBreakers();
         PlaceNexusCore();
         
-        //GetComponent<NavMeshSurface>().BuildNavMesh();
         GameManager.Instance.MazeGrid = mazeGrid;
         EventManager.Instance.InvokeOnMazeGenerated();
     }
@@ -130,7 +129,6 @@ public class MazeGenerator : MonoBehaviour
     private void OnRequirementsBeforeNavMeshSpawned()
     {
         GetComponent<NavMeshSurface>().BuildNavMesh();
-        //EventManager.Instance.InvokeOnMazeGenerated();
         EventManager.Instance.InvokeOnNavMeshBaked();
     }
     

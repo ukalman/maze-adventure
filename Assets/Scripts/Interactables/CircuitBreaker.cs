@@ -35,6 +35,7 @@ public class CircuitBreaker : MonoBehaviour
         EventManager.Instance.OnDroneCamDeactivated -= OnDroneCamDeactivated;
         EventManager.Instance.OnGamePaused -= OnGamePaused;
         EventManager.Instance.OnGameContinued -= OnGameContinued;
+        EventManager.Instance.OnLightsTurnedOn -= OnLightsTurnedOn;
     }
     
     void Update()
@@ -102,6 +103,6 @@ public class CircuitBreaker : MonoBehaviour
 
     private void OnLightsTurnedOn()
     {
-        minimapTile.SetActive(false);
+        if (minimapTile != null) minimapTile.SetActive(false);
     }
 }

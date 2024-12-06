@@ -39,7 +39,8 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Slider masterVolumeSlider;
     [SerializeField] private Slider musicVolumeSlider;
     [SerializeField] private Slider sfxVolumeSlider;
-
+    [SerializeField] private Slider loadingSlider;
+    
     void Start()
     {
         InitializeSliders(); 
@@ -49,6 +50,7 @@ public class MainMenuManager : MonoBehaviour
 
     private void InitializeSliders()
     {
+        SceneManager.Instance.loadingSlider = loadingSlider;
         masterVolumeSlider.value = DataManager.Instance.masterVolume;
         musicVolumeSlider.value = DataManager.Instance.musicVolume;
         sfxVolumeSlider.value = DataManager.Instance.sfxVolume;
@@ -210,6 +212,21 @@ public class MainMenuManager : MonoBehaviour
     public void OnQuitClicked()
     {
         Application.Quit();
+    }
+
+    public void OnEasyClicked()
+    {
+        DataManager.Instance.OnDifficultySelected(GameDifficulty.EASY);
+    }
+
+    public void OnModerateClicked()
+    {
+        DataManager.Instance.OnDifficultySelected(GameDifficulty.MODERATE); 
+    }
+
+    public void OnHardClicked()
+    {
+        DataManager.Instance.OnDifficultySelected(GameDifficulty.HARD);
     }
     
 }

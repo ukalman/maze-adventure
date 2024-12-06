@@ -25,6 +25,18 @@ public class DataManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        
+        string currentVersion = "1.1"; 
+        string savedVersion = PlayerPrefs.GetString("GameVersion", ""); 
+
+        if (savedVersion != currentVersion)
+        {
+            Debug.Log("Old PlayerPrefs detected. Resetting for new version...");
+            PlayerPrefs.DeleteAll(); 
+            PlayerPrefs.SetString("GameVersion", currentVersion); 
+            PlayerPrefs.Save();
+        }
+        
 
         // Load volume settings
         masterVolume = PlayerPrefs.GetFloat("MasterVolume", 1.0f);
@@ -57,7 +69,7 @@ public class DataManager : MonoBehaviour
         EventManager.Instance.OnGameFinished -= OnGameFinished;
     }
 
-    private void OnDifficultySelected(GameDifficulty difficulty)
+    public void OnDifficultySelected(GameDifficulty difficulty)
     {
         selectedDifficulty = difficulty;
     }
